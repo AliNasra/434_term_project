@@ -4,7 +4,7 @@ import mujoco
 import mujoco.viewer
 import cmpe434_utils
 import numpy as np
-from python.controller_L1 import *
+from controller_L1 import *
 import random
 import math
 """
