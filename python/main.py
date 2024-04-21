@@ -57,16 +57,16 @@ with mujoco.viewer.launch_passive(m, d, key_callback=key_callback) as viewer:
   prev_point     = np.array([d.xpos[3][0:2],d.xpos[4][0:2],d.xpos[5][0:2],d.xpos[6][0:2]])
   prev_point     = np.mean(prev_point, axis=0)
   max_v          = 5
-  max_w          = 50.0 * math.pi / 180.0
-  min_v          = -2.5
+  max_w          = 60.0 * math.pi / 180.0
+  min_v          = 0
   min_w          = -1*max_w
   gc             = 0.15
   vc             = 1
   oc             = 1
   ta             = 2
-  aa             = 50.0 * math.pi / 180.0
-  time_window    = 2
-  time_step      = 1
+  aa             = 60.0 * math.pi / 180.0
+  time_window    = 1.5
+  time_step      = 0.1
   rv             = 5
   rw             = 5
   vehicle_width  = 0.25
@@ -111,7 +111,7 @@ with mujoco.viewer.launch_passive(m, d, key_callback=key_callback) as viewer:
         #steering.ctrl = control_vals[0]
         #velocity.ctrl = control_vals[1]
         #print(s,v)
-        steering.ctrl  =  s
+        steering.ctrl  =  s * 1
         velocity.ctrl  =  v
         prev_point     = point.copy()
         mujoco.mj_step(m, d)
