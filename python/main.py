@@ -59,24 +59,25 @@ with mujoco.viewer.launch_passive(m, d, key_callback=key_callback) as viewer:
   start          = time.time()
   prev_point     = np.array([d.xpos[3][0:2],d.xpos[4][0:2],d.xpos[5][0:2],d.xpos[6][0:2]])
   prev_point     = np.mean(prev_point, axis=0)
-  max_v          = 3
-  max_w          = 30.0 * math.pi / 180.0
+  max_v          = 5
+  max_w          = 50.0 * math.pi / 180.0
   min_v          = -1
   min_w          = -1*max_w
   gc             = 0.15
   vc             = 1
   oc             = 1
   ta             = 2
-  aa             = 10.0 * math.pi / 180.0
-  time_window    = 3
-  time_step      = 0.1
+  aa             = 50.0 * math.pi / 180.0
+  time_window    = 2
+  time_step      = 0.2
   rv             = 5
   rw             = 5
   vehicle_width  = 0.25
   vehicle_height = 0.2965
   counter        = 0
-  goal_x         = -3
-  goal_y         = 7
+  goal_x         = 1
+
+  goal_y         = 1
   #tile_count    = 0
   while viewer.is_running() and time.time() - start < 10000:
     step_start = time.time()
