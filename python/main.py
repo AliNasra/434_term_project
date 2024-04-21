@@ -85,9 +85,11 @@ with mujoco.viewer.launch_passive(m, d, key_callback=key_callback) as viewer:
         #print(point)
         velocity_val = np.mean(np.array(d.sensordata[0:3]))
         angular_val  = np.mean(np.array(d.sensordata[3:6]))
+        goal_x = random.randint(-5, 6)
+        goal_y = random.randint(-1, 8)
         #velocity_val = math.sqrt((v_measure[0]**2)+(v_measure[1]**2))
         #angular_val  = math.sqrt((w_measure[0]**2)+(w_measure[1]**2))
-        goal         = np.array([-3,7])
+        goal         = np.array([goal_x,goal_y])
         #goal         = [random.uniform(-6,4),random.uniform(-2,8)]
         traj,s,v     = pick_trajectory(point,prev_point,goal,obstacles,velocity_val,angular_val,max_v,max_w,min_v,min_w,gc,vc,oc,ta,aa,time_window,time_step,rv,rw,vehicle_width,vehicle_height)
         #print("Goal:",goal)
