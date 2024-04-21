@@ -74,34 +74,38 @@ with mujoco.viewer.launch_passive(m, d, key_callback=key_callback) as viewer:
   rw             = 5
   vehicle_width  = 0.25
   vehicle_height = 0.2965
-  counter        = 0
-  goal_x         = 1
-
-  goal_y         = 1
+  #counter        = 0
+  goal_x         = 0
+  goal_y         = 0
   #tile_count    = 0
   while viewer.is_running() and time.time() - start < 10000:
     step_start = time.time()
 
     if not paused:
         #if counter %100 == 0:
-        #  goal_x = random.randint(-5, 6)
-        #  goal_y = random.randint(-1, 8)
+        goal_x = random.randint(-5, 6)
+        goal_y = random.randint(-1, 8)
         #list(viewer.user_scn.geoms).clear()
         #viewer.user_scn.ngeom   = 0
         #tile_count              = 0
         #print(d.xpos)
-        point        = np.array([d.xpos[3][0:2],d.xpos[4][0:2],d.xpos[5][0:2],d.xpos[6][0:2]])
-        point        = np.mean(point, axis=0)
         #print(point)
-        velocity_val = np.mean(np.array(d.sensordata[0:3]))
-        angular_val  = np.mean(np.array(d.sensordata[3:6]))
-        
         #velocity_val = math.sqrt((v_measure[0]**2)+(v_measure[1]**2))
         #angular_val  = math.sqrt((w_measure[0]**2)+(w_measure[1]**2))
+        point        = np.array([d.xpos[3][0:2],d.xpos[4][0:2],d.xpos[5][0:2],d.xpos[6][0:2]])
+        point        = np.mean(point, axis=0)      
+        velocity_val = np.mean(np.array(d.sensordata[0:3]))
+        angular_val  = np.mean(np.array(d.sensordata[3:6]))              
         goal         = np.array([goal_x,goal_y])
+        if (calculate_distance(goal,point)<0.2):
+           print("Goal Reached")
+           break      
         #goal         = [random.uniform(-6,4),random.uniform(-2,8)]
-        traj,s,v     = pick_trajectory(point,prev_point,goal,obstacles,velocity_val,angular_val,max_v,max_w,min_v,min_w,gc,vc,oc,ta,aa,time_window,time_step,rv,rw,vehicle_width,vehicle_height)
+        #print("Point",point)
+        #print("Previous Point",prev_point)
+        #print("****************")
         #print("Goal:",goal)
+        traj,s,v     = pick_trajectory(point,prev_point,goal,obstacles,velocity_val,angular_val,max_v,max_w,min_v,min_w,gc,vc,oc,ta,aa,time_window,time_step,rv,rw,vehicle_width,vehicle_height)     
         #print("Steering:",s," - ","Velocity:",v)
         """
         for point in traj:
