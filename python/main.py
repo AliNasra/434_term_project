@@ -68,23 +68,25 @@ with mujoco.viewer.launch_passive(m, d, key_callback=key_callback) as viewer:
   oc             = 1
   ta             = 2
   aa             = 50.0 * math.pi / 180.0
-  time_window    = 2
-  time_step      = 0.2
+  time_window    = 1
+  time_step      = 0.1
   rv             = 5
   rw             = 5
-  vehicle_width  = 0.25
-  vehicle_height = 0.2965
+  #vehicle_width  = 0.25
+  #vehicle_height = 0.2965
   #counter        = 0
-  goal_x         = 0
-  goal_y         = 0
+  vehicle_width  = 0.3
+  vehicle_height = 0.3
+  goal_x         = random.randint(-1, 6)
+  goal_y         = random.randint(0, 8)
+  print("Goal:",goal_x,goal_y)
   #tile_count    = 0
   while viewer.is_running() and time.time() - start < 10000:
     step_start = time.time()
 
     if not paused:
         #if counter %100 == 0:
-        goal_x = random.randint(-5, 6)
-        goal_y = random.randint(-1, 8)
+        
         #list(viewer.user_scn.geoms).clear()
         #viewer.user_scn.ngeom   = 0
         #tile_count              = 0
@@ -96,10 +98,12 @@ with mujoco.viewer.launch_passive(m, d, key_callback=key_callback) as viewer:
         point        = np.mean(point, axis=0)      
         velocity_val = np.mean(np.array(d.sensordata[0:3]))
         angular_val  = np.mean(np.array(d.sensordata[3:6]))              
+        
+        if (calculate_distance(point,[goal_x,goal_y])<0.5):
+          goal_x = random.randint(-1, 6)
+          goal_y = random.randint(0, 8)
+          print("Goal:",goal_x,goal_y)
         goal         = np.array([goal_x,goal_y])
-        if (calculate_distance(goal,point)<0.2):
-           print("Goal Reached")
-           break      
         #goal         = [random.uniform(-6,4),random.uniform(-2,8)]
         #print("Point",point)
         #print("Previous Point",prev_point)
