@@ -8,6 +8,9 @@ from controller_L1 import *
 import random
 import math
 """
+ <geom type="box" size="0.1 2.6 0.1" rgba="0.01 .3 1 1" pos= "-2  5 0.05" density = "5000"/>
+    <geom type="box" size="0.1 2.6 0.1" rgba="0.01 .3 1 1" pos= "4  2 0.05" density = "5000"/>
+
     <geom type="box" size="0.2 0.1 0.1" rgba="0.01 .3 1 1" pos= "-3 6 0.05" density = "5000"/>
     <geom type="box" size="0.2 0.1 0.1" rgba="0.01 .3 1 1" pos= "4 0 0.05" density = "5000"/>
     <geom type="box" size="0.1 2.6 0.1" rgba="0.01 .3 1 1" pos= "4  2 0.05" density = "5000"/>
@@ -56,26 +59,32 @@ with mujoco.viewer.launch_passive(m, d, key_callback=key_callback) as viewer:
   start          = time.time()
   prev_point     = np.array([d.xpos[3][0:2],d.xpos[4][0:2],d.xpos[5][0:2],d.xpos[6][0:2]])
   prev_point     = np.mean(prev_point, axis=0)
-  max_v          = 5
-  max_w          = 60.0 * math.pi / 180.0
-  min_v          = 0
+  max_v          = 3
+  max_w          = 30.0 * math.pi / 180.0
+  min_v          = -1
   min_w          = -1*max_w
   gc             = 0.15
   vc             = 1
   oc             = 1
   ta             = 2
-  aa             = 60.0 * math.pi / 180.0
-  time_window    = 1.5
+  aa             = 10.0 * math.pi / 180.0
+  time_window    = 3
   time_step      = 0.1
   rv             = 5
   rw             = 5
   vehicle_width  = 0.25
   vehicle_height = 0.2965
-  #tile_count     = 0
+  counter        = 0
+  goal_x         = -3
+  goal_y         = 7
+  #tile_count    = 0
   while viewer.is_running() and time.time() - start < 10000:
     step_start = time.time()
 
     if not paused:
+        #if counter %100 == 0:
+        #  goal_x = random.randint(-5, 6)
+        #  goal_y = random.randint(-1, 8)
         #list(viewer.user_scn.geoms).clear()
         #viewer.user_scn.ngeom   = 0
         #tile_count              = 0
@@ -85,8 +94,7 @@ with mujoco.viewer.launch_passive(m, d, key_callback=key_callback) as viewer:
         #print(point)
         velocity_val = np.mean(np.array(d.sensordata[0:3]))
         angular_val  = np.mean(np.array(d.sensordata[3:6]))
-        goal_x = random.randint(-5, 6)
-        goal_y = random.randint(-1, 8)
+        
         #velocity_val = math.sqrt((v_measure[0]**2)+(v_measure[1]**2))
         #angular_val  = math.sqrt((w_measure[0]**2)+(w_measure[1]**2))
         goal         = np.array([goal_x,goal_y])
@@ -114,6 +122,7 @@ with mujoco.viewer.launch_passive(m, d, key_callback=key_callback) as viewer:
         steering.ctrl  =  s * 1
         velocity.ctrl  =  v
         prev_point     = point.copy()
+        #counter        = counter + 1
         mujoco.mj_step(m, d)
         # Pick up changes to the physics state, apply perturbations, update options from GUI.
         viewer.sync()
