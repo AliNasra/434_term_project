@@ -175,11 +175,11 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
                 #print("***************")
                 velocity.ctrl = s # update velocity control value
                 steering.ctrl = v # update steering control value
-
+                prev_point    = point.copy()
                 # mj_step can be replaced with code that also evaluates
                 # a policy and applies a control signal before stepping the physics.
                 mujoco.mj_step(m, d)
-                prev_point     = point.copy()
+                
                 # Pick up changes to the physics state, apply perturbations, update options from GUI.
                 viewer.sync()
             # Rudimentary time keeping, will drift relative to wall clock.
