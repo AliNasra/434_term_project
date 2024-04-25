@@ -139,11 +139,12 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
 
         # velocity = m.actuator("throttle_velocity")
         # steering = m.actuator("steering")
-
+        #prev_point     = np.array([d.xpos[3][0:2],d.xpos[4][0:2],d.xpos[5][0:2],d.xpos[6][0:2]])
+        #prev_point     = np.mean(prev_point, axis=0)
         velocity       = d.actuator("throttle_velocity")
         steering       = d.actuator("steering")
-        point          = np.array(d.body("buddy").pos[:2])
-        prev_point     = np.array(d.body("buddy").pos[:2])
+        point          = np.array(d.body("buddy").xpos[:2])
+        prev_point     = np.array(d.body("buddy").xpos[:2])
 
         # Close the viewer automatically after 30 wall-seconds.
         start = time.time()
@@ -152,7 +153,7 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
 
             if not paused:
                 goal          = []
-                point         = np.array(d.body("buddy").pos[:2])
+                point         = np.array(d.body("buddy").xpos[:2])
                 distances     = np.linalg.norm(r_coordinates - point, axis=1)
                 #  Find the index of the node with the minimum distance
                 closest_index = np.argmin(distances)
@@ -164,7 +165,7 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
                 goal          = np.array(r_coordinates[target_index])
                 velocity_val  = np.mean(np.array(d.sensordata[0:3]))
                 angular_val   = np.mean(np.array(d.sensordata[3:6]))
-                traj,s,v      = pick_trajectory(point,prev_point,goal,obstacles,velocity_val,angular_val,max_v,max_w,min_v,min_w,gc,vc,oc,ta,aa,time_window,time_step,rv,rw,vehicle_width,vehicle_height)
+                _,s,v         = pick_trajectory(point,prev_point,goal,obstacles,velocity_val,angular_val,max_v,max_w,min_v,min_w,gc,vc,oc,ta,aa,time_window,time_step,rv,rw,vehicle_width,vehicle_height)
                 velocity.ctrl = s # update velocity control value
                 steering.ctrl = v # update steering control value
 
