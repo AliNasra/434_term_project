@@ -165,6 +165,8 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
                 goal          = np.array(r_coordinates[target_index])
                 velocity_val  = np.mean(np.array(d.sensordata[0:3]))
                 angular_val   = np.mean(np.array(d.sensordata[3:6]))
+                print("Translational velocity:",velocity_val)
+                print("Angular velocity:",angular_val)
                 _,s,v         = pick_trajectory(point,prev_point,goal,obstacles,velocity_val,angular_val,max_v,max_w,min_v,min_w,gc,vc,oc,ta,aa,time_window,time_step,rv,rw,vehicle_width,vehicle_height)
                 velocity.ctrl = s # update velocity control value
                 steering.ctrl = v # update steering control value
