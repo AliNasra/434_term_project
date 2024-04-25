@@ -107,7 +107,7 @@ def create_scenario():
 def execute_scenario(obstacles,scene, ASSETS=dict()):
     m              = mujoco.MjModel.from_xml_string(scene.to_xml_string(), assets=all_assets)
     d              = mujoco.MjData(m)
-    max_v          = 2.5
+    max_v          = 4
     max_w          = 50.0 * math.pi / 180.0
     min_v          = -max_v
     min_w          = -1*max_w
@@ -163,9 +163,10 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
                 else:
                     target_index = closest_index + 10
                 goal          = np.array(r_coordinates[target_index])
-                if calculate_distance(goal,point) < 0.2:
-                    print("Goal Reached")
-                    return
+                #if calculate_distance(goal,point) < 0.2:
+                #    print(calculate_distance(goal,point))
+                #    print("Goal Reached")
+                #    return
                 velocity_val  = np.mean(np.array(d.sensordata[0:3]))
                 angular_val   = np.mean(np.array(d.sensordata[3:6]))
                 #print("Translational velocity:",velocity_val)
