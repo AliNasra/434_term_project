@@ -125,7 +125,7 @@ def pick_trajectory(point,previous_point,goal,obstacles,v,w,max_v,max_w,min_v,mi
 	#print("*****************************")
 	#plt.scatter(ideal_traj[:,0],ideal_traj[:,1])
 	#plt.show()
-	return ideal_traj,(ideal_traj[0,4])*7,(ideal_traj[0,3])
+	return ideal_traj,(ideal_traj[0,4])*5.5,(ideal_traj[0,3])
 
 
 

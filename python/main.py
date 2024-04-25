@@ -127,20 +127,20 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
     rx,ry          = AStar(sx,sy,gx,gy,0.15,obstacles[:,0],obstacles[:,1])
     r_coordinates  = np.hstack((np.array(rx).reshape(-1, 1), np.array(ry).reshape(-1, 1)))
 
-    #plt.scatter(obstacles[:,0],obstacles[:,1])
-    #plt.scatter(rx,ry)
-    #plt.scatter(sx,sy)
-    #plt.scatter(gx,gy)
-    #print("Start Coordinates:",sx,sy)
-    #print("Goal Coordinates:",gx,gy)
-    #plt.show()
+    plt.scatter(obstacles[:,0],obstacles[:,1])
+    plt.scatter(rx,ry)
+    plt.scatter(sx,sy)
+    plt.scatter(gx,gy)
+    print("Start Coordinates:",sx,sy)
+    print("Goal Coordinates:",gx,gy)
+    plt.show()
 
     with mujoco.viewer.launch_passive(m, d, key_callback=key_callback) as viewer:
 
-        # velocity = m.actuator("throttle_velocity")
-        # steering = m.actuator("steering")
-        #prev_point     = np.array([d.xpos[3][0:2],d.xpos[4][0:2],d.xpos[5][0:2],d.xpos[6][0:2]])
-        #prev_point     = np.mean(prev_point, axis=0)
+        # velocity     = m.actuator("throttle_velocity")
+        # steering     = m.actuator("steering")
+        #prev_point    = np.array([d.xpos[3][0:2],d.xpos[4][0:2],d.xpos[5][0:2],d.xpos[6][0:2]])
+        #prev_point    = np.mean(prev_point, axis=0)
         velocity       = d.actuator("throttle_velocity")
         steering       = d.actuator("steering")
         point          = np.array(d.body("buddy").xpos[:2])
@@ -158,16 +158,21 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
                 #  Find the index of the node with the minimum distance
                 closest_index = np.argmin(distances)
                 target_index  = 0
-                if closest_index + 10 > len(r_coordinates):
+                if closest_index + 10 > len(r_coordinates)-1:
                     target_index = len(r_coordinates)-1
                 else:
                     target_index = closest_index + 10
                 goal          = np.array(r_coordinates[target_index])
                 velocity_val  = np.mean(np.array(d.sensordata[0:3]))
                 angular_val   = np.mean(np.array(d.sensordata[3:6]))
-                print("Translational velocity:",velocity_val)
-                print("Angular velocity:",angular_val)
+                #print("Translational velocity:",velocity_val)
+                #print("Angular velocity:",angular_val)
                 _,s,v         = pick_trajectory(point,prev_point,goal,obstacles,velocity_val,angular_val,max_v,max_w,min_v,min_w,gc,vc,oc,ta,aa,time_window,time_step,rv,rw,vehicle_width,vehicle_height)
+                #print("Goal",goal)
+                print("Point:",point)
+                #print("Steering:",s)
+                #print("Velocity:",v)
+                #print("***************")
                 velocity.ctrl = s # update velocity control value
                 steering.ctrl = v # update steering control value
 
