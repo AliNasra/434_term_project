@@ -98,10 +98,14 @@ def pick_trajectory(point,goal,obstacles,v,w,max_v,max_w,min_v,min_w,gc,vc,oc,ta
 	obstacles_list = filter_obstacles(point,obstacles)
 	#counter = 0
 	#chosen_counter = 0
+	#traj_x         = []
+	#traj_y         = []
 	while vel_counter<=vel_range[0][1]:
 		while rot_counter<=vel_range[1][1]:
 			#counter = counter + 1
 			trajectory = calculate_circular_trajectory(pose,vel_counter,rot_counter,aa,ta,time_step,time_window)
+			#traj_x.extend(list(trajectory[:,0]))
+			#traj_y.extend(list(trajectory[:,1]))
 			if len(trajectory) == 0:
 				rot_counter = rot_counter + rw
 				continue
@@ -121,6 +125,8 @@ def pick_trajectory(point,goal,obstacles,v,w,max_v,max_w,min_v,min_w,gc,vc,oc,ta
 			rot_counter = rot_counter + resolution_w
 		rot_counter = vel_range[1][0]
 		vel_counter = vel_counter + resolution_v
+	#plt.scatter(traj_x,traj_y)
+	#plt.show()
 	#print("Chosen Trajectory:",ideal_traj[0,2])
 	#print("*****************************")
 	#plt.scatter(ideal_traj[:,0],ideal_traj[:,1])
