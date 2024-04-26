@@ -127,7 +127,6 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
     #vehicle_height= 0.3
     rx,ry          = AStar(sx,sy,gx,gy,0.15,obstacles[:,0],obstacles[:,1])
     r_coordinates  = np.hstack((np.array(rx).reshape(-1, 1), np.array(ry).reshape(-1, 1)))
-
     plt.scatter(obstacles[:,0],obstacles[:,1])
     plt.scatter(rx,ry)
     plt.scatter(sx,sy)
@@ -164,6 +163,14 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
                 else:
                     target_index = closest_index + 10
                 goal          = np.array(r_coordinates[target_index])
+                squared_diff = (goal - np.array([gx,gy])) ** 2
+                # Sum the squared differences along the axis of the features (axis=1 for 2D)
+                sum_squared_diff = np.sum(squared_diff)
+                # Take the square root to get the Euclidean distance
+                euclidean_distance = np.sqrt(sum_squared_diff)
+                if euclidean_distance < 0.1:
+                    print("Goal Reached")
+                    return
                 #if calculate_distance(goal,point) < 0.2:
                 #    print(calculate_distance(goal,point))
                 #    print("Goal Reached")
