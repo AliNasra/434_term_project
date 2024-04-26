@@ -7,8 +7,8 @@ def calculate_distance(first_point,second_point):
 	dist_sqr = ((first_point[0]-second_point[0])**2)+((first_point[1]-second_point[1])**2)
 	return math.sqrt(dist_sqr)
 
-def calculate_yaw(first_point,second_point):
-	angle = math.atan2(second_point[1]-first_point[1],second_point[0]-first_point[0])
+def calculate_yaw(point):
+	angle = math.atan2(point[1],point[0])
 	return angle
 
 def calculate_circular_trajectory(pose,v,w,aa,ta,time_step,time_window):
@@ -84,8 +84,8 @@ def calculate_velocity_cost(coefficient, trajectory,max_v):
 	return cost
 
 
-def pick_trajectory(point,previous_point,goal,obstacles,v,w,max_v,max_w,min_v,min_w,gc,vc,oc,ta,aa,time_window,time_step,rv,rw,vehicle_width,vehicle_height):
-	yaw            = calculate_yaw(previous_point,point)
+def pick_trajectory(point,goal,obstacles,v,w,max_v,max_w,min_v,min_w,gc,vc,oc,ta,aa,time_window,time_step,rv,rw,vehicle_width,vehicle_height):
+	yaw            = calculate_yaw(point)
 	vel_range      = calculate_velocity_range(max_v,min_v,max_w,min_w,v,w,aa,ta,time_window)
 	#print("vel_range:",vel_range)
 	min_cost       = float("inf")

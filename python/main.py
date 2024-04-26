@@ -7,6 +7,7 @@ import numpy as np
 import cmpe434_utils
 import cmpe434_dungeon
 import math
+from visualizer import *
 from controller_L2 import *
 from controller_L1 import *
 
@@ -144,8 +145,8 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
         velocity       = d.actuator("throttle_velocity")
         steering       = d.actuator("steering")
         point          = np.array(d.body("buddy").xpos[:2])
-        prev_point     = np.array(d.body("buddy").xpos[:2])
-
+        #prev_point     = np.array(d.body("buddy").xpos[:2])
+        visualize(r_coordinates,viewer)
         # Close the viewer automatically after 30 wall-seconds.
         start = time.time()
         while viewer.is_running() and time.time() - start < 300:
@@ -171,7 +172,7 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
                 angular_val   = np.mean(np.array(d.sensordata[3:6]))
                 #print("Translational velocity:",velocity_val)
                 #print("Angular velocity:",angular_val)
-                _,s,v         = pick_trajectory(point,prev_point,goal,obstacles,velocity_val,angular_val,max_v,max_w,min_v,min_w,gc,vc,oc,ta,aa,time_window,time_step,rv,rw,vehicle_width,vehicle_height)
+                _,s,v         = pick_trajectory(point,goal,obstacles,velocity_val,angular_val,max_v,max_w,min_v,min_w,gc,vc,oc,ta,aa,time_window,time_step,rv,rw,vehicle_width,vehicle_height)
                 #print("Goal",goal)
                 print("Point:",point)
                 #print("Steering:",s)
@@ -179,7 +180,7 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
                 #print("***************")
                 velocity.ctrl = s # update velocity control value
                 steering.ctrl = v # update steering control value
-                prev_point    = point.copy()
+                #prev_point    = point.copy()
                 # mj_step can be replaced with code that also evaluates
                 # a policy and applies a control signal before stepping the physics.
                 mujoco.mj_step(m, d)
