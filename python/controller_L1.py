@@ -96,13 +96,13 @@ def pick_trajectory(point,goal,obstacles,v,w,max_v,max_w,min_v,min_w,gc,vc,oc,ta
 	resolution_w   = (vel_range[1][1]-vel_range[1][0])/rw
 	ideal_traj     = []
 	obstacles_list = filter_obstacles(point,obstacles)
-	#counter = 0
-	#chosen_counter = 0
+	counter        = 0
+	chosen_counter = 0
 	#traj_x         = []
 	#traj_y         = []
 	while vel_counter<=vel_range[0][1]:
 		while rot_counter<=vel_range[1][1]:
-			#counter = counter + 1
+			counter = counter + 1
 			trajectory = calculate_circular_trajectory(pose,vel_counter,rot_counter,aa,ta,time_step,time_window)
 			#traj_x.extend(list(trajectory[:,0]))
 			#traj_y.extend(list(trajectory[:,1]))
@@ -118,20 +118,21 @@ def pick_trajectory(point,goal,obstacles,v,w,max_v,max_w,min_v,min_w,gc,vc,oc,ta
 			#print("Angle:",trajectory[0,2],"Cost:",cost_total,"Coordinates: (",point[0],",",point[1],")")
 			if (cost_total<min_cost):
 				#print(cost_total,"vs", min_cost)
-				#chosen_counter = counter
+				chosen_counter = counter
 				#print("Better route with angle =",trajectory[0,2])
 				ideal_traj = np.array(trajectory.copy())
 				min_cost   = cost_total			
 			rot_counter = rot_counter + resolution_w
 		rot_counter = vel_range[1][0]
 		vel_counter = vel_counter + resolution_v
+	#print("Chosen Counter:",chosen_counter)
 	#plt.scatter(traj_x,traj_y)
 	#plt.show()
 	#print("Chosen Trajectory:",ideal_traj[0,2])
 	#print("*****************************")
 	#plt.scatter(ideal_traj[:,0],ideal_traj[:,1])
 	#plt.show()
-	return ideal_traj,(ideal_traj[0,4])*7,(ideal_traj[0,3])
+	return ideal_traj,(ideal_traj[0,4])*6,(ideal_traj[0,3])
 
 
 

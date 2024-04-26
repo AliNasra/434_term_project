@@ -11,6 +11,8 @@ from visualizer import *
 from controller_L2 import *
 from controller_L1 import *
 
+
+# Goal: [ 20 4 ]
 # Pressing SPACE key toggles the paused state. 
 # You can define other keys for other actions here.
 def key_callback(keycode):
@@ -108,16 +110,16 @@ def create_scenario():
 def execute_scenario(obstacles,scene, ASSETS=dict()):
     m              = mujoco.MjModel.from_xml_string(scene.to_xml_string(), assets=all_assets)
     d              = mujoco.MjData(m)
-    max_v          = 4
-    max_w          = 50.0 * math.pi / 180.0
-    min_v          = -max_v*0.5
+    max_v          = 1
+    max_w          = 60.0 * math.pi / 180.0
+    min_v          = -0.5
     min_w          = -1*max_w
     gc             = 0.15
     vc             = 1
     oc             = 1
-    ta             = 0.5
-    aa             = 50.0 * math.pi / 180.0
-    time_window    = 1
+    ta             = 0.2
+    aa             = 60.0 * math.pi / 180.0
+    time_window    = 2
     time_step      = 0.1
     rv             = 5
     rw             = 5
@@ -181,10 +183,10 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
                 #print("Angular velocity:",angular_val)
                 _,s,v         = pick_trajectory(point,goal,obstacles,velocity_val,angular_val,max_v,max_w,min_v,min_w,gc,vc,oc,ta,aa,time_window,time_step,rv,rw,vehicle_width,vehicle_height)
                 #print("Goal",goal)
-                print("Point:",point)
-                #print("Steering:",s)
-                #print("Velocity:",v)
-                #print("***************")
+                #print("Point:",point)
+                print("Steering:",s)
+                print("Velocity:",v)
+                print("***************")
                 velocity.ctrl = s # update velocity control value
                 steering.ctrl = v # update steering control value
                 #prev_point    = point.copy()
