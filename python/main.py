@@ -12,8 +12,8 @@ from controller_L2 import *
 from controller_L1 import *
 
 
-# Goal : [ 6 4 ]
-# Start: [ 6 4 ]
+# Goal : [ 24 8 ]
+# Start: [ 20 20 ]
 # Pressing SPACE key toggles the paused state. 
 # You can define other keys for other actions here.
 def key_callback(keycode):
@@ -112,16 +112,16 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
     m              = mujoco.MjModel.from_xml_string(scene.to_xml_string(), assets=all_assets)
     d              = mujoco.MjData(m)
     max_v          = 5
-    max_w          = 70.0 * math.pi / 180.0
+    max_w          = 5
     min_v          = -1
     min_w          = -1*max_w
     gc             = 0.15
     vc             = 1
     oc             = 1
     ta             = 1
-    aa             = 70.0 * math.pi / 180.0
+    aa             = 2.5
     time_window    = 2
-    time_step      = 0.1
+    time_step      = 0.2
     rv             = 5
     rw             = 5
     #vehicle_width  = 0.25
@@ -161,10 +161,10 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
                 #  Find the index of the node with the minimum distance
                 closest_index = np.argmin(distances)
                 target_index  = 0
-                if closest_index + 10 > len(r_coordinates)-1:
+                if closest_index + 5 > len(r_coordinates)-1:
                     target_index = len(r_coordinates)-1
                 else:
-                    target_index = closest_index + 10
+                    target_index = closest_index + 5
                 goal          = np.array(r_coordinates[target_index])
                 squared_diff = (goal - np.array([gx,gy])) ** 2
                 # Sum the squared differences along the axis of the features (axis=1 for 2D)

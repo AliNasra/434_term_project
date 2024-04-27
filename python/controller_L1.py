@@ -28,7 +28,7 @@ def calculate_circular_trajectory(pose,v,w,aa,ta,time_step,time_window):
 
 def filter_obstacles(pose,obstacles):
 	filtered_list = []
-	radius        = 2
+	radius        = 3
 	for obstacle in obstacles:
 		if calculate_distance(pose,obstacle) < radius:
 			filtered_list.append(obstacle)
@@ -132,7 +132,7 @@ def pick_trajectory(point,goal,obstacles,v,w,max_v,max_w,min_v,min_w,gc,vc,oc,ta
 	#print("*****************************")
 	#plt.scatter(ideal_traj[:,0],ideal_traj[:,1])
 	#plt.show()
-	return ideal_traj,(ideal_traj[0,2])*6,(ideal_traj[0,3])
+	return ideal_traj,(ideal_traj[0,4]),(ideal_traj[0,3])
 
 
 
