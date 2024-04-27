@@ -190,11 +190,12 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
                 #print("Translational velocity:",velocity_val)
                 #print("Angular velocity:",angular_val)
                 yaw           =  0 
-                if syaw == None:
-                    yaw = syaw
+                if syaw != None:
+                    yaw  = syaw
+                    syaw = None
                 else:
-                    yaw = calculate_yaw(prev_point,point)
-                _,s,v   = pick_trajectory(point,goal,obstacles,velocity_val,angular_val,max_v,max_w,min_v,min_w,gc,vc,oc,ta,aa,time_window,time_step,rv,rw,vehicle_width,vehicle_height,yaw)
+                    yaw  = calculate_yaw(prev_point,point)
+                _,s,v    = pick_trajectory(point,goal,obstacles,velocity_val,angular_val,max_v,max_w,min_v,min_w,gc,vc,oc,ta,aa,time_window,time_step,rv,rw,vehicle_width,vehicle_height,yaw)
                 #print("Goal",goal)
                 print("Point:",point)
                 print("Steering:",s)
