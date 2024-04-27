@@ -83,23 +83,39 @@ def calculate_velocity_cost(coefficient, trajectory,max_v):
 	cost = coefficient * (max_v - trajectory[0,3])
 	return cost
 
+def filter_routes(costs):
+	ideal_controls  = np.array(costs)
+	value_to_remove = float("Inf")
+	mask = ideal_controls[:, 2] != value_to_remove
+	filtered = ideal_controls[mask]
+	sorted_indices = np.argsort(filtered[:, 0])
+	# Sort the array using the sorted indices
+	sorted_array = filtered[sorted_indices]
+	sorted_indices_2 = np.argsort(sorted_array[:10, 1])
+	# Sort the array using the sorted indices
+	sorted_array_2 = sorted_array[sorted_indices_2]
+	#print("Control Vals:",sorted_array_2[0,3:])
+	return sorted_array_2[0,3:]
+
+
 
 def pick_trajectory(point,goal,obstacles,v,w,max_v,max_w,min_v,min_w,gc,vc,oc,ta,aa,time_window,time_step,rv,rw,vehicle_width,vehicle_height,yaw):
 	
 	vel_range      = calculate_velocity_range(max_v,min_v,max_w,min_w,v,w,aa,ta,time_window)
 	#print("vel_range:",vel_range)
-	min_cost       = float("inf")
+	min_cost       = float("Inf")
 	pose           = np.array([point[0],point[1],yaw])
 	vel_counter    = vel_range[0][0]
 	rot_counter    = vel_range[1][0]
 	resolution_v   = (vel_range[0][1]-vel_range[0][0])/rv
 	resolution_w   = (vel_range[1][1]-vel_range[1][0])/rw
-	ideal_traj     = []
+	#ideal_traj     = []
 	obstacles_list = filter_obstacles(point,obstacles)
 	#counter        = 0
 	#chosen_counter = 0
 	#traj_x         = []
 	#traj_y         = []
+	costs          = []
 	while vel_counter<=vel_range[0][1]:
 		while rot_counter<=vel_range[1][1]:
 			#counter = counter + 1
@@ -114,14 +130,15 @@ def pick_trajectory(point,goal,obstacles,v,w,max_v,max_w,min_v,min_w,gc,vc,oc,ta
 			cost_3     = 0
 			if len(obstacles_list)>0:
 				cost_3     = calculate_obstacle_cost(oc,trajectory,obstacles_list,vehicle_width,vehicle_height)
-			cost_total = cost_1 + cost_2 + cost_3
+			costs.append([cost_1,cost_2,cost_3,vel_counter,rot_counter])
+			#cost_total = cost_1 + cost_2 + cost_3
 			#print("Angle:",trajectory[0,2],"Cost:",cost_total,"Coordinates: (",point[0],",",point[1],")")
-			if (cost_total<min_cost):
+			#if (cost_total<min_cost and cost_3 != float("Inf")):
 				#print(cost_total,"vs", min_cost)
 				#chosen_counter = counter
 				#print("Better route with angle =",trajectory[0,2])
-				ideal_traj = np.array(trajectory.copy())
-				min_cost   = cost_total			
+			#	ideal_traj = np.array(trajectory.copy())
+			#	min_cost   = cost_total			
 			rot_counter = rot_counter + resolution_w
 		rot_counter = vel_range[1][0]
 		vel_counter = vel_counter + resolution_v
@@ -132,7 +149,10 @@ def pick_trajectory(point,goal,obstacles,v,w,max_v,max_w,min_v,min_w,gc,vc,oc,ta
 	#print("*****************************")
 	#plt.scatter(ideal_traj[:,0],ideal_traj[:,1])
 	#plt.show()
-	return ideal_traj,(ideal_traj[0,4]),(ideal_traj[0,3])
+	#return ideal_traj,(ideal_traj[0,4]),(ideal_traj[0,3])
+	ideal_controls = filter_routes(costs)
+
+	return ideal_controls,ideal_controls[1],ideal_controls[0]
 
 
 
