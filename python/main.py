@@ -13,8 +13,8 @@ from controller_L1 import *
 
 
 
-# Start: [ 28 22 ]
-# Goal : [ 4 8 ]
+# Start: [ 34 6 ]
+# Goal : [ 40 4 ]
 
 # Pressing SPACE key toggles the paused state. 
 # You can define other keys for other actions here.
@@ -117,7 +117,7 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
     m              = mujoco.MjModel.from_xml_string(scene.to_xml_string(), assets=all_assets)
     d              = mujoco.MjData(m)
     max_v          = 5
-    max_w          = 6
+    max_w          = 7
     min_v          = -1
     min_w          = -1*max_w
     gc             = 0.15
@@ -144,6 +144,7 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
     plt.scatter(gx,gy)
     print("Start Coordinates:",sx,sy)
     print("Goal Coordinates:",gx,gy)
+    print("Start Yaw:",syaw)
     plt.show()
 
     with mujoco.viewer.launch_passive(m, d, key_callback=key_callback) as viewer:
