@@ -90,8 +90,9 @@ def filter_routes(costs):
 	filtered = ideal_controls[mask]
 	sorted_indices = np.argsort(filtered[:, 0])
 	# Sort the array using the sorted indices
-	sorted_array = filtered[sorted_indices]
-	sorted_indices_2 = np.argsort(sorted_array[:10, 1])
+	sorted_array     = filtered[sorted_indices]
+	limit            = int(ceil(len(sorted_array)*0.4))
+	sorted_indices_2 = np.argsort(sorted_array[:limit, 1])
 	# Sort the array using the sorted indices
 	sorted_array_2 = sorted_array[sorted_indices_2]
 	#print(sorted_array_2)
