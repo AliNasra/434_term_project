@@ -84,17 +84,19 @@ def calculate_velocity_cost(coefficient, trajectory,max_v):
 	return cost
 
 def filter_routes(costs):
-	ideal_controls  = np.array(costs)
-	value_to_remove = float("Inf")
-	mask = ideal_controls[:, 2] != value_to_remove
-	filtered = ideal_controls[mask]
-	sorted_indices = np.argsort(filtered[:, 0])
+	ideal_controls   = np.array(costs)
+	value_to_remove  = float("Inf")
+	mask             = ideal_controls[:, 2] != value_to_remove
+	filtered         = ideal_controls[mask]
+	limit            = int(math.ceil(len(filtered)*0.5))
+	sorted_indices   = np.argsort(filtered[:, 1])
 	# Sort the array using the sorted indices
 	sorted_array     = filtered[sorted_indices]
-	limit            = int(ceil(len(sorted_array)*0.4))
-	sorted_indices_2 = np.argsort(sorted_array[:limit, 1])
+	filtered_sorted  = sorted_array[:limit]
+	#limit            = int(math.ceil(len(filtered_sorted)*0.5))
+	sorted_indices_2 = np.argsort(filtered_sorted[:, 0])
 	# Sort the array using the sorted indices
-	sorted_array_2 = sorted_array[sorted_indices_2]
+	sorted_array_2  = sorted_array[sorted_indices_2]
 	#print(sorted_array_2)
 	#print("Control Vals:",sorted_array_2[0,3:])
 	return sorted_array_2[0,3:]
@@ -105,7 +107,7 @@ def pick_trajectory(point,goal,obstacles,v,w,max_v,max_w,min_v,min_w,gc,vc,oc,ta
 	
 	vel_range      = calculate_velocity_range(max_v,min_v,max_w,min_w,v,w,aa,ta,time_window)
 	#print("vel_range:",vel_range)
-	min_cost       = float("Inf")
+	#min_cost       = float("Inf")
 	pose           = np.array([point[0],point[1],yaw])
 	vel_counter    = vel_range[0][0]
 	rot_counter    = vel_range[1][0]
