@@ -13,8 +13,8 @@ from controller_L1 import *
 
 
 
-# Start: [ 38 24 ]
-# Goal : [ 24 8 ]
+# Start: [ 28 22 ]
+# Goal : [ 4 8 ]
 
 # Pressing SPACE key toggles the paused state. 
 # You can define other keys for other actions here.
@@ -67,7 +67,7 @@ def add_obstacles(pos_x,pos_y,size_x,size_y):
 		
 
 def create_scenario():
-    global sx,sy,gx,gy
+    global sx,sy,gx,gy,syaw
     scene, scene_assets = cmpe434_utils.get_model('scenes/empty_floor.xml')
     # robot, robot_assets = cmpe434_utils.get_model('models/mujoco_car/model.xml')
     # robot, robot_assets = cmpe434_utils.get_model('models/skydio_x2/x2.xml')
@@ -113,6 +113,7 @@ def create_scenario():
     return scene, all_assets
 
 def execute_scenario(obstacles,scene, ASSETS=dict()):
+    global sx,sy,gx,gy,syaw
     m              = mujoco.MjModel.from_xml_string(scene.to_xml_string(), assets=all_assets)
     d              = mujoco.MjData(m)
     max_v          = 5
