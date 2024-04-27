@@ -12,8 +12,10 @@ from controller_L2 import *
 from controller_L1 import *
 
 
-# Goal : [ 24 8 ]
-# Start: [ 20 20 ]
+
+# Start: [ 18 10 ]
+# Goal : [ 10 20 ]
+
 # Pressing SPACE key toggles the paused state. 
 # You can define other keys for other actions here.
 def key_callback(keycode):
@@ -112,7 +114,7 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
     m              = mujoco.MjModel.from_xml_string(scene.to_xml_string(), assets=all_assets)
     d              = mujoco.MjData(m)
     max_v          = 5
-    max_w          = 5
+    max_w          = 7
     min_v          = -1
     min_w          = -1*max_w
     gc             = 0.15
@@ -129,6 +131,8 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
     vehicle_width = 0.3
     vehicle_height= 0.3
     rx,ry          = AStar(sx,sy,gx,gy,0.15,obstacles[:,0],obstacles[:,1])
+    rx.reverse()
+    ry.reverse()
     r_coordinates  = np.hstack((np.array(rx).reshape(-1, 1), np.array(ry).reshape(-1, 1)))
     plt.scatter(obstacles[:,0],obstacles[:,1])
     plt.scatter(rx,ry)
