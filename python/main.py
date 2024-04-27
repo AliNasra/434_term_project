@@ -203,7 +203,8 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
                 else:
                     yaw  = calculate_yaw(prev_point,point)
                     #yaw   = yaw + steering.ctrl[0] * time_step
-                _,s,v    = pick_trajectory(point,goal,obstacles,velocity_val,angular_val,max_v,max_w,min_v,min_w,gc,vc,oc,ta,aa,time_window,time_step,rv,rw,vehicle_width,vehicle_height,yaw)
+                s,v    = pick_trajectory(point,goal,obstacles,velocity_val,angular_val,max_v,max_w,min_v,min_w,gc,vc,oc,ta,aa,time_window,time_step,rv,rw,vehicle_width,vehicle_height,yaw)
+                """
                 print("Final Target:",gx,gy)
                 print("Goal:",goal)
                 print("Point:",point)
@@ -212,6 +213,7 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
                 print("Steering:",s)
                 print("Velocity:",v)
                 print("***************")
+                """
                 velocity.ctrl = v # update velocity control value
                 steering.ctrl = s # update steering control value
                 prev_point    = point.copy()

@@ -94,6 +94,7 @@ def filter_routes(costs):
 	sorted_indices_2 = np.argsort(sorted_array[:10, 1])
 	# Sort the array using the sorted indices
 	sorted_array_2 = sorted_array[sorted_indices_2]
+	#print(sorted_array_2)
 	#print("Control Vals:",sorted_array_2[0,3:])
 	return sorted_array_2[0,3:]
 
@@ -152,7 +153,7 @@ def pick_trajectory(point,goal,obstacles,v,w,max_v,max_w,min_v,min_w,gc,vc,oc,ta
 	#return ideal_traj,(ideal_traj[0,4]),(ideal_traj[0,3])
 	ideal_controls = filter_routes(costs)
 
-	return ideal_controls,ideal_controls[1],ideal_controls[0]
+	return ideal_controls[1],ideal_controls[0]
 
 
 
