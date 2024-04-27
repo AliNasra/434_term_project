@@ -117,7 +117,7 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
     m              = mujoco.MjModel.from_xml_string(scene.to_xml_string(), assets=all_assets)
     d              = mujoco.MjData(m)
     max_v          = 5
-    max_w          = 6
+    max_w          = 5
     min_v          = -1
     min_w          = -1*max_w
     gc             = 0.15
@@ -127,8 +127,9 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
     aa             = 1
     time_window    = 2
     time_step      = 0.2
-    rv             = 5
-    rw             = 5
+    rv             = 6
+    rw             = 6
+    #m.opt.timestep = time_step
     #vehicle_width  = 0.25
     #vehicle_height = 0.2965
     vehicle_width = 0.3
@@ -157,6 +158,7 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
         velocity       = d.actuator("throttle_velocity")
         steering       = d.actuator("steering")
         point          = np.array(d.body("buddy").xpos[:2])
+        yaw            =  0
         #prev_point     = np.array(d.body("buddy").xpos[:2])
         visualize(r_coordinates,viewer)
         # Close the viewer automatically after 30 wall-seconds.
@@ -165,16 +167,17 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
             step_start = time.time()
 
             if not paused:
+                #print("Vel Value:",velocity.ctrl)
                 goal          = []
                 point         = np.array(d.body("buddy").xpos[:2])
                 distances     = np.linalg.norm(r_coordinates - point, axis=1)
                 #  Find the index of the node with the minimum distance
                 closest_index = np.argmin(distances)
                 target_index  = 0
-                if closest_index + 5 > len(r_coordinates)-1:
+                if closest_index + 1 > len(r_coordinates)-1:
                     target_index = len(r_coordinates)-1
                 else:
-                    target_index = closest_index + 5
+                    target_index = closest_index + 1
                 goal          = np.array(r_coordinates[target_index])
                 squared_diff = (point - np.array([gx,gy])) ** 2
                 # Sum the squared differences along the axis of the features (axis=1 for 2D)
@@ -188,16 +191,18 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
                 #    print(calculate_distance(goal,point))
                 #    print("Goal Reached")
                 #    return
-                velocity_val  = np.mean(np.array(d.sensordata[0:3]))
-                angular_val   = np.mean(np.array(d.sensordata[3:6]))
+                #velocity_val  = np.mean(np.array(d.sensordata[0:3]))
+                #angular_val   = np.mean(np.array(d.sensordata[3:6]))
+                velocity_val   = velocity.ctrl[0]
+                angular_val    = steering.ctrl[0]
                 #print("Translational velocity:",velocity_val)
-                #print("Angular velocity:",angular_val)
-                yaw           =  0 
+                #print("Angular velocity:",angular_val) 
                 if syaw != None:
                     yaw  = syaw + (math.pi/2)
                     syaw = None
                 else:
                     yaw  = calculate_yaw(prev_point,point)
+                    #yaw   = yaw + steering.ctrl[0] * time_step
                 _,s,v    = pick_trajectory(point,goal,obstacles,velocity_val,angular_val,max_v,max_w,min_v,min_w,gc,vc,oc,ta,aa,time_window,time_step,rv,rw,vehicle_width,vehicle_height,yaw)
                 print("Final Target:",gx,gy)
                 print("Goal:",goal)
