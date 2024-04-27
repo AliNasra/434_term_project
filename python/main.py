@@ -13,8 +13,8 @@ from controller_L1 import *
 
 
 
-# Start: [ 34 6 ]
-# Goal : [ 40 4 ]
+# Start: [ 20 28 ]
+# Goal : [ 42 22 ]
 
 # Pressing SPACE key toggles the paused state. 
 # You can define other keys for other actions here.
@@ -117,7 +117,7 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
     m              = mujoco.MjModel.from_xml_string(scene.to_xml_string(), assets=all_assets)
     d              = mujoco.MjData(m)
     max_v          = 5
-    max_w          = 7
+    max_w          = 6
     min_v          = -1
     min_w          = -1*max_w
     gc             = 0.15
@@ -137,7 +137,7 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
     rx.reverse()
     ry.reverse()
     r_coordinates  = np.hstack((np.array(rx).reshape(-1, 1), np.array(ry).reshape(-1, 1)))
-    #print(r_coordinates)
+    print(r_coordinates)
     plt.scatter(obstacles[:,0],obstacles[:,1])
     plt.scatter(rx,ry)
     plt.scatter(sx,sy)
@@ -198,8 +198,11 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
                 else:
                     yaw  = calculate_yaw(prev_point,point)
                 _,s,v    = pick_trajectory(point,goal,obstacles,velocity_val,angular_val,max_v,max_w,min_v,min_w,gc,vc,oc,ta,aa,time_window,time_step,rv,rw,vehicle_width,vehicle_height,yaw)
-                #print("Goal",goal)
+                print("Final Target:",gx,gy)
+                print("Goal:",goal)
                 print("Point:",point)
+                print("Yaw:",yaw)
+                print("Distance to Goal:",euclidean_distance)
                 print("Steering:",s)
                 print("Velocity:",v)
                 print("***************")
