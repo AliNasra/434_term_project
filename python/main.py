@@ -13,8 +13,8 @@ from controller_L1 import *
 
 
 
-# Start: [ 18 10 ]
-# Goal : [ 10 20 ]
+# Start: [ 24 28 ]
+# Goal : [ 2 22 ]
 
 # Pressing SPACE key toggles the paused state. 
 # You can define other keys for other actions here.
@@ -134,6 +134,7 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
     rx.reverse()
     ry.reverse()
     r_coordinates  = np.hstack((np.array(rx).reshape(-1, 1), np.array(ry).reshape(-1, 1)))
+    #print(r_coordinates)
     plt.scatter(obstacles[:,0],obstacles[:,1])
     plt.scatter(rx,ry)
     plt.scatter(sx,sy)
