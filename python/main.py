@@ -137,7 +137,7 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
     rx.reverse()
     ry.reverse()
     r_coordinates  = np.hstack((np.array(rx).reshape(-1, 1), np.array(ry).reshape(-1, 1)))
-    """
+    
     print(r_coordinates)
     plt.scatter(obstacles[:,0],obstacles[:,1])
     plt.scatter(rx,ry)
@@ -147,7 +147,7 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
     print("Goal Coordinates:",gx,gy)
     print("Start Yaw:",syaw)
     plt.show()
-    """
+    
     with mujoco.viewer.launch_passive(m, d, key_callback=key_callback) as viewer:
 
         # velocity     = m.actuator("throttle_velocity")
@@ -176,7 +176,7 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
                 else:
                     target_index = closest_index + 5
                 goal          = np.array(r_coordinates[target_index])
-                squared_diff = (goal - np.array([gx,gy])) ** 2
+                squared_diff = (point - np.array([gx,gy])) ** 2
                 # Sum the squared differences along the axis of the features (axis=1 for 2D)
                 sum_squared_diff = np.sum(squared_diff)
                 # Take the square root to get the Euclidean distance
@@ -194,7 +194,7 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
                 #print("Angular velocity:",angular_val)
                 yaw           =  0 
                 if syaw != None:
-                    yaw  = syaw
+                    yaw  = syaw + (math.pi/2)
                     syaw = None
                 else:
                     yaw  = calculate_yaw(prev_point,point)
