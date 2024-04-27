@@ -12,7 +12,8 @@ from controller_L2 import *
 from controller_L1 import *
 
 
-# Goal: [ 6 4 ]
+# Goal : [ 6 4 ]
+# Start: [ 6 4 ]
 # Pressing SPACE key toggles the paused state. 
 # You can define other keys for other actions here.
 def key_callback(keycode):
