@@ -28,7 +28,7 @@ def calculate_circular_trajectory(pose,v,w,aa,ta,time_step,time_window):
 
 def filter_obstacles(pose,obstacles):
 	filtered_list = []
-	radius        = 3
+	radius        = 2
 	for obstacle in obstacles:
 		if calculate_distance(pose,obstacle) < radius:
 			filtered_list.append(obstacle)

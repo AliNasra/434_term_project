@@ -48,7 +48,7 @@ def add_obstacles(pos_x,pos_y,size_x,size_y):
         obstacle_x.append(pos_x-increment_x)
         obstacle_y.append(pos_y+size_y)
         obstacle_y.append(pos_y-size_y)
-        increment_x = increment_x + 0.1
+        increment_x = increment_x + 0.05
     while increment_y <= size_y:
 		#Add 2 points on the left
         obstacle_x.append(pos_x+size_x)
@@ -60,7 +60,7 @@ def add_obstacles(pos_x,pos_y,size_x,size_y):
         obstacle_x.append(pos_x-size_x)
         obstacle_y.append(pos_y+increment_y)
         obstacle_y.append(pos_y-increment_y)
-        increment_y = increment_y + 0.1
+        increment_y = increment_y + 0.05
     obstaclex.extend(obstacle_x)
     obstacley.extend(obstacle_y)
 
@@ -116,17 +116,17 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
     global sx,sy,gx,gy,syaw
     m              = mujoco.MjModel.from_xml_string(scene.to_xml_string(), assets=all_assets)
     d              = mujoco.MjData(m)
-    max_v          = 5
-    max_w          = 5
+    max_v          = 3
+    max_w          = 3
     min_v          = -1
     min_w          = -1*max_w
-    gc             = 0.15
-    vc             = 1
+    gc             = 0.6
+    vc             = 0.2
     oc             = 1
     ta             = 1
     aa             = 1
-    time_window    = 2
-    time_step      = 0.2
+    time_window    = 1
+    time_step      = 0.1
     rv             = 6
     rw             = 6
     #m.opt.timestep = time_step
@@ -139,7 +139,7 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
     ry.reverse()
     r_coordinates  = np.hstack((np.array(rx).reshape(-1, 1), np.array(ry).reshape(-1, 1)))
     
-    print(r_coordinates)
+    #print(r_coordinates)
     plt.scatter(obstacles[:,0],obstacles[:,1])
     plt.scatter(rx,ry)
     plt.scatter(sx,sy)
