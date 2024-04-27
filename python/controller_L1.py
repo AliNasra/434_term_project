@@ -7,8 +7,8 @@ def calculate_distance(first_point,second_point):
 	dist_sqr = ((first_point[0]-second_point[0])**2)+((first_point[1]-second_point[1])**2)
 	return math.sqrt(dist_sqr)
 
-def calculate_yaw(point):
-	angle = math.atan2(point[1],point[0])
+def calculate_yaw(first_point,second_point):
+	angle = math.atan2(second_point[1]-first_point[1],second_point[0]-first_point[0])
 	return angle
 
 def calculate_circular_trajectory(pose,v,w,aa,ta,time_step,time_window):
@@ -84,8 +84,8 @@ def calculate_velocity_cost(coefficient, trajectory,max_v):
 	return cost
 
 
-def pick_trajectory(point,goal,obstacles,v,w,max_v,max_w,min_v,min_w,gc,vc,oc,ta,aa,time_window,time_step,rv,rw,vehicle_width,vehicle_height):
-	yaw            = calculate_yaw(point)
+def pick_trajectory(point,goal,obstacles,v,w,max_v,max_w,min_v,min_w,gc,vc,oc,ta,aa,time_window,time_step,rv,rw,vehicle_width,vehicle_height,yaw):
+	
 	vel_range      = calculate_velocity_range(max_v,min_v,max_w,min_w,v,w,aa,ta,time_window)
 	#print("vel_range:",vel_range)
 	min_cost       = float("inf")
@@ -96,13 +96,13 @@ def pick_trajectory(point,goal,obstacles,v,w,max_v,max_w,min_v,min_w,gc,vc,oc,ta
 	resolution_w   = (vel_range[1][1]-vel_range[1][0])/rw
 	ideal_traj     = []
 	obstacles_list = filter_obstacles(point,obstacles)
-	counter        = 0
-	chosen_counter = 0
+	#counter        = 0
+	#chosen_counter = 0
 	#traj_x         = []
 	#traj_y         = []
 	while vel_counter<=vel_range[0][1]:
 		while rot_counter<=vel_range[1][1]:
-			counter = counter + 1
+			#counter = counter + 1
 			trajectory = calculate_circular_trajectory(pose,vel_counter,rot_counter,aa,ta,time_step,time_window)
 			#traj_x.extend(list(trajectory[:,0]))
 			#traj_y.extend(list(trajectory[:,1]))
@@ -118,7 +118,7 @@ def pick_trajectory(point,goal,obstacles,v,w,max_v,max_w,min_v,min_w,gc,vc,oc,ta
 			#print("Angle:",trajectory[0,2],"Cost:",cost_total,"Coordinates: (",point[0],",",point[1],")")
 			if (cost_total<min_cost):
 				#print(cost_total,"vs", min_cost)
-				chosen_counter = counter
+				#chosen_counter = counter
 				#print("Better route with angle =",trajectory[0,2])
 				ideal_traj = np.array(trajectory.copy())
 				min_cost   = cost_total			

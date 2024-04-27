@@ -13,8 +13,8 @@ from controller_L1 import *
 
 
 
-# Start: [ 24 28 ]
-# Goal : [ 2 22 ]
+# Start: [ 38 24 ]
+# Goal : [ 24 8 ]
 
 # Pressing SPACE key toggles the paused state. 
 # You can define other keys for other actions here.
@@ -30,6 +30,7 @@ sx        = 0
 sy        = 0
 gx        = 0
 gy        = 0
+syaw      = None
 
 def add_obstacles(pos_x,pos_y,size_x,size_y):
     increment_x       = 0
@@ -99,10 +100,11 @@ def create_scenario():
 
     start_yaw = random.randint(0, 359)
     robot.find("body", "buddy").set_attributes(pos=[start_pos[0]*2, start_pos[1]*2, 0.1], euler=[0, 0, start_yaw])
-    sx  = start_pos[0]*2
-    sy  = start_pos[1]*2
-    gx  = final_pos[0]*2
-    gy  = final_pos[1]*2
+    sx   = start_pos[0]*2
+    sy   = start_pos[1]*2
+    gx   = final_pos[0]*2
+    gy   = final_pos[1]*2
+    syaw = start_yaw * math.pi/180
     scene.include_copy(robot)
 
     # Combine all assets into a single dictionary.
@@ -114,7 +116,7 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
     m              = mujoco.MjModel.from_xml_string(scene.to_xml_string(), assets=all_assets)
     d              = mujoco.MjData(m)
     max_v          = 5
-    max_w          = 7
+    max_w          = 6
     min_v          = -1
     min_w          = -1*max_w
     gc             = 0.15
@@ -156,7 +158,7 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
         visualize(r_coordinates,viewer)
         # Close the viewer automatically after 30 wall-seconds.
         start = time.time()
-        while viewer.is_running() and time.time() - start < 300:
+        while viewer.is_running() and time.time() - start < 10000:
             step_start = time.time()
 
             if not paused:
@@ -187,7 +189,12 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
                 angular_val   = np.mean(np.array(d.sensordata[3:6]))
                 #print("Translational velocity:",velocity_val)
                 #print("Angular velocity:",angular_val)
-                _,s,v         = pick_trajectory(point,goal,obstacles,velocity_val,angular_val,max_v,max_w,min_v,min_w,gc,vc,oc,ta,aa,time_window,time_step,rv,rw,vehicle_width,vehicle_height)
+                yaw           =  0 
+                if syaw == None:
+                    yaw = syaw
+                else:
+                    yaw = calculate_yaw(prev_point,point)
+                _,s,v   = pick_trajectory(point,goal,obstacles,velocity_val,angular_val,max_v,max_w,min_v,min_w,gc,vc,oc,ta,aa,time_window,time_step,rv,rw,vehicle_width,vehicle_height,yaw)
                 #print("Goal",goal)
                 print("Point:",point)
                 print("Steering:",s)
@@ -195,7 +202,7 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
                 print("***************")
                 velocity.ctrl = v # update velocity control value
                 steering.ctrl = s # update steering control value
-                #prev_point    = point.copy()
+                prev_point    = point.copy()
                 # mj_step can be replaced with code that also evaluates
                 # a policy and applies a control signal before stepping the physics.
                 mujoco.mj_step(m, d)
