@@ -124,7 +124,7 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
     vc             = 1
     oc             = 1
     ta             = 1
-    aa             = 2.5
+    aa             = 1
     time_window    = 2
     time_step      = 0.2
     rv             = 5
@@ -137,6 +137,7 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
     rx.reverse()
     ry.reverse()
     r_coordinates  = np.hstack((np.array(rx).reshape(-1, 1), np.array(ry).reshape(-1, 1)))
+    """
     print(r_coordinates)
     plt.scatter(obstacles[:,0],obstacles[:,1])
     plt.scatter(rx,ry)
@@ -146,7 +147,7 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
     print("Goal Coordinates:",gx,gy)
     print("Start Yaw:",syaw)
     plt.show()
-
+    """
     with mujoco.viewer.launch_passive(m, d, key_callback=key_callback) as viewer:
 
         # velocity     = m.actuator("throttle_velocity")
