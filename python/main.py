@@ -116,9 +116,9 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
     global sx,sy,gx,gy,syaw
     m              = mujoco.MjModel.from_xml_string(scene.to_xml_string(), assets=all_assets)
     d              = mujoco.MjData(m)
-    max_v          = 3
+    max_v          = 4
     max_w          = 3
-    min_v          = -1
+    min_v          = 0
     min_w          = -1*max_w
     gc             = 1
     vc             = 1
@@ -204,7 +204,7 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
                     yaw  = calculate_yaw(prev_point,point)
                     #yaw   = yaw + steering.ctrl[0] * time_step
                 s,v    = pick_trajectory(point,goal,obstacles,velocity_val,angular_val,max_v,max_w,min_v,min_w,gc,vc,oc,ta,aa,time_window,time_step,rv,rw,vehicle_width,vehicle_height,yaw)
-                """
+                
                 print("Final Target:",gx,gy)
                 print("Goal:",goal)
                 print("Point:",point)
@@ -213,7 +213,7 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
                 print("Steering:",s)
                 print("Velocity:",v)
                 print("***************")
-                """
+                
                 velocity.ctrl = v # update velocity control value
                 steering.ctrl = s # update steering control value
                 prev_point    = point.copy()
