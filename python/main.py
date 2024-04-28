@@ -161,6 +161,7 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
         yaw            =  0
         #prev_point     = np.array(d.body("buddy").xpos[:2])
         visualize(r_coordinates,viewer)
+        
         # Close the viewer automatically after 30 wall-seconds.
         start = time.time()
         while viewer.is_running() and time.time() - start < 10000:
@@ -174,10 +175,10 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
                 #  Find the index of the node with the minimum distance
                 closest_index = np.argmin(distances)
                 target_index  = 0
-                if closest_index + 1 > len(r_coordinates)-1:
+                if closest_index + 3 > len(r_coordinates)-1:
                     target_index = len(r_coordinates)-1
                 else:
-                    target_index = closest_index + 1
+                    target_index = closest_index + 3
                 goal          = np.array(r_coordinates[target_index])
                 squared_diff = (point - np.array([gx,gy])) ** 2
                 # Sum the squared differences along the axis of the features (axis=1 for 2D)
