@@ -91,6 +91,7 @@ def calculate_velocity_cost(coefficient, trajectory,max_v):
 	return cost
 
 def filter_routes(costs):
+	#print("Number of Routes Created:",len(costs))
 	ideal_controls   = np.array(costs)
 	sorted_indices_0 = np.argsort(ideal_controls[:, 2])
 	ideal_controls   = ideal_controls[sorted_indices_0]
