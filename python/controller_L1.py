@@ -103,12 +103,12 @@ def filter_routes(costs):
 	limit            = int(math.ceil(len(ideal_controls)*0.6))
 	ideal_controls   = ideal_controls[:limit]
 	limit            = int(math.ceil(len(ideal_controls)*0.3))
-	sorted_indices   = np.argsort(ideal_controls[:, 0])
+	sorted_indices   = np.argsort(ideal_controls[:, 1])
 	# Sort the array using the sorted indices
 	ideal_controls   = ideal_controls[sorted_indices]
 	ideal_controls   = ideal_controls[:limit]
 	#limit            = int(math.ceil(len(filtered_sorted)*0.5))
-	sorted_indices_2 = np.argsort(ideal_controls[:, 1])
+	sorted_indices_2 = np.argsort(ideal_controls[:, 0])
 	# Sort the array using the sorted indices
 	ideal_controls  = ideal_controls[sorted_indices_2]
 	#print(sorted_array_2)
