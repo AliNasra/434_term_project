@@ -125,8 +125,8 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
     oc             = 1
     ta             = 1
     aa             = 1
-    time_window    = 1
-    time_step      = 0.1
+    time_window    = 2
+    time_step      = 0.2
     rv             = 6
     rw             = 6
     #m.opt.timestep = time_step
@@ -185,7 +185,7 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
                 sum_squared_diff = np.sum(squared_diff)
                 # Take the square root to get the Euclidean distance
                 euclidean_distance = np.sqrt(sum_squared_diff)
-                if euclidean_distance < 0.1:
+                if euclidean_distance < 0.5:
                     print("Goal Reached")
                     return
                 #if calculate_distance(goal,point) < 0.2:
