@@ -91,29 +91,32 @@ def calculate_velocity_cost(coefficient, trajectory,max_v):
 	return cost
 
 def filter_routes(costs):
-	#print("Number of Routes Created:",len(costs))
-	ideal_controls   = np.array(costs)
-	sorted_indices_0 = np.argsort(ideal_controls[:, 2])
-	ideal_controls   = ideal_controls[sorted_indices_0]
-	value_to_remove  = float("Inf")
-	mask             = ideal_controls[:, 2] != value_to_remove
-	count_true       = np.sum(mask)
-	if count_true != len(ideal_controls):
-		ideal_controls   = ideal_controls[mask]
-	limit            = int(math.ceil(len(ideal_controls)*0.6))
-	ideal_controls   = ideal_controls[:limit]
-	limit            = int(math.ceil(len(ideal_controls)*0.3))
-	sorted_indices   = np.argsort(ideal_controls[:, 1])
-	# Sort the array using the sorted indices
-	ideal_controls   = ideal_controls[sorted_indices]
-	ideal_controls   = ideal_controls[:limit]
-	#limit            = int(math.ceil(len(filtered_sorted)*0.5))
-	sorted_indices_2 = np.argsort(ideal_controls[:, 0])
-	# Sort the array using the sorted indices
-	ideal_controls  = ideal_controls[sorted_indices_2]
-	#print(sorted_array_2)
-	#print("Control Vals:",sorted_array_2[0,3:])
-	return ideal_controls[0,3:]
+	try:
+		#print("Number of Routes Created:",len(costs))
+		ideal_controls   = np.array(costs)
+		sorted_indices_0 = np.argsort(ideal_controls[:, 2])
+		ideal_controls   = ideal_controls[sorted_indices_0]
+		value_to_remove  = float("Inf")
+		mask             = ideal_controls[:, 2] != value_to_remove
+		count_true       = np.sum(mask)
+		if count_true != len(ideal_controls):
+			ideal_controls   = ideal_controls[mask]
+		limit            = int(math.ceil(len(ideal_controls)*0.6))
+		ideal_controls   = ideal_controls[:limit]
+		limit            = int(math.ceil(len(ideal_controls)*0.3))
+		sorted_indices   = np.argsort(ideal_controls[:, 1])
+		# Sort the array using the sorted indices
+		ideal_controls   = ideal_controls[sorted_indices]
+		ideal_controls   = ideal_controls[:limit]
+		#limit            = int(math.ceil(len(filtered_sorted)*0.5))
+		sorted_indices_2 = np.argsort(ideal_controls[:, 0])
+		# Sort the array using the sorted indices
+		ideal_controls  = ideal_controls[sorted_indices_2]
+		#print(sorted_array_2)
+		#print("Control Vals:",sorted_array_2[0,3:])
+		return ideal_controls[0,3:]
+	except:
+		return np.array([0,0])
 
 
 
