@@ -27,12 +27,13 @@ def calculate_circular_trajectory(pose,v,w,aa,ta,time_step,time_window):
 
 
 def filter_obstacles(pose,obstacles):
-	filtered_list = []
 	radius        = 2
-	for obstacle in obstacles:
-		if calculate_distance(pose,obstacle) < radius:
-			filtered_list.append(obstacle)
-	return np.array(filtered_list)
+	distances = np.linalg.norm(obstacles - np.array([pose[0], pose[1]]), axis=1)
+	# Find the indices of points where the distance is less than 4
+	indices = np.where(distances < radius)
+	# Extract the points that meet the condition
+	filtered_list = obstacles[indices]
+	return filtered_list
 
 
 def calculate_velocity_range(max_v,min_v,max_w,min_w,v,w,aa,ta,time_window):
@@ -217,4 +218,3 @@ def get_obstacle_points(m):
 	#plt.show()
 	return obstacle_x.copy(),obstacle_y.copy()
 	
-
