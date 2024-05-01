@@ -8,7 +8,7 @@ def calculate_distance(first_point,second_point):
 	return math.sqrt(dist_sqr)
 
 def calculate_yaw(first_point,second_point):
-	angle = math.atan2(second_point[1]-first_point[1],second_point[0]-first_point[0])
+	angle = (math.atan2(second_point[1]-first_point[1],second_point[0]-first_point[0]) + 2*math.pi)%(2*math.pi)
 	return angle
 
 def calculate_circular_trajectory(pose,v,w,aa,ta,time_step,time_window):
@@ -27,7 +27,7 @@ def calculate_circular_trajectory(pose,v,w,aa,ta,time_step,time_window):
 
 
 def filter_obstacles(pose,obstacles):
-	radius        = 2
+	radius        = 1
 	distances = np.linalg.norm(obstacles - np.array([pose[0], pose[1]]), axis=1)
 	# Find the indices of points where the distance is less than 4
 	indices = np.where(distances < radius)
@@ -71,18 +71,18 @@ def calculate_obstacle_cost(coefficient,trajectory,obstacles,vehicle_width,vehic
 	return coefficient / min_r  # OK
 
 
-def calculate_goal_cost(coefficient,trajectory,goal):
+def calculate_goal_cost(coefficient,trajectory,goal,point):
 	#dx = goal[0] - trajectory[-1, 0]
 	#dy = goal[1] - trajectory[-1, 1]
 	#error_angle = math.atan2(dy, dx)
 	#cost_angle = error_angle - trajectory[-1, 2]
 	#cost = coefficient * abs(math.atan2(math.sin(cost_angle), math.cos(cost_angle)))
-	dx            = goal[0] - trajectory[0, 0]
-	dy            = goal[1] - trajectory[0, 1]
-	error_angle   = math.atan2(dy, dx)
-	dx            = trajectory[1, 0] - trajectory[0, 0]
-	dy            = trajectory[1, 1] - trajectory[0, 1]
-	heading_angle = math.atan2(dy, dx)
+	dx            = goal[0] - point[0]
+	dy            = goal[1] - point[1]
+	error_angle   = (math.atan2(dy, dx)+2*math.pi)%(2*math.pi)
+	dx            = trajectory[1, 0] - point[0]
+	dy            = trajectory[1, 1] - point[1]
+	heading_angle = (math.atan2(dy, dx)+2*math.pi)%(2*math.pi)
 	cost          = abs(heading_angle-error_angle)
 	return cost
 
@@ -147,7 +147,7 @@ def pick_trajectory(point,goal,obstacles,v,w,max_v,max_w,min_v,min_w,gc,vc,oc,ta
 			if len(trajectory) == 0:
 				rot_counter = rot_counter + rw
 				continue
-			cost_1     = calculate_goal_cost(gc,trajectory,goal)  
+			cost_1     = calculate_goal_cost(gc,trajectory,goal,point)  
 			cost_2	   = calculate_velocity_cost(vc,trajectory,max_v)
 			cost_3     = 0
 			if len(obstacles_list)>0:

@@ -114,32 +114,34 @@ def create_scenario():
 
 def execute_scenario(obstacles,scene, ASSETS=dict()):
     global sx,sy,gx,gy,syaw
-    m              = mujoco.MjModel.from_xml_string(scene.to_xml_string(), assets=all_assets)
-    d              = mujoco.MjData(m)
-    max_v          = 3.5
-    max_w          = 4
-    min_v          = -2
-    min_w          = -1*max_w
-    gc             = 1
-    vc             = 1
-    oc             = 1
-    ta             = 1
-    aa             = 1
-    time_window    = 0.2
-    time_step      = time_window * 0.1
-    rv             = 6
-    rw             = 6
+    m                = mujoco.MjModel.from_xml_string(scene.to_xml_string(), assets=all_assets)
+    d                = mujoco.MjData(m)
+    max_v            = 3
+    max_w            = 6
+    min_v            = -2
+    min_w            = -1*max_w
+    gc               = 1
+    vc               = 1
+    oc               = 1
+    ta               = 1
+    aa               = 1
+    time_window      = 0.2
+    time_step        = time_window * 0.1
+    rv               = 6
+    rw               = 6
+    look_ahead_index = 4
     #m.opt.timestep = time_step
     #vehicle_width  = 0.25
     #vehicle_height = 0.2965
-    vehicle_width = 0.30
-    vehicle_height= 0.30
+    vehicle_width    = 0.6
+    vehicle_height   = 0.6
     rx,ry          = AStar(sx,sy,gx,gy,0.15,obstacles[:,0],obstacles[:,1])
     rx.reverse()
     ry.reverse()
     r_coordinates  = np.hstack((np.array(rx).reshape(-1, 1), np.array(ry).reshape(-1, 1)))
     
     #print(r_coordinates)
+    """
     plt.scatter(obstacles[:,0],obstacles[:,1])
     plt.scatter(rx,ry)
     plt.scatter(sx,sy)
@@ -148,6 +150,7 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
     print("Goal Coordinates:",gx,gy)
     print("Start Yaw:",syaw)
     plt.show()
+    """
     
     with mujoco.viewer.launch_passive(m, d, key_callback=key_callback) as viewer:
 
@@ -175,10 +178,10 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
                 #  Find the index of the node with the minimum distance
                 closest_index = np.argmin(distances)
                 target_index  = 0
-                if closest_index + 3 > len(r_coordinates)-1:
+                if closest_index + look_ahead_index > len(r_coordinates)-1:
                     target_index = len(r_coordinates)-1
                 else:
-                    target_index = closest_index + 3
+                    target_index = closest_index + look_ahead_index
                 goal          = np.array(r_coordinates[target_index])
                 squared_diff = (point - np.array([gx,gy])) ** 2
                 # Sum the squared differences along the axis of the features (axis=1 for 2D)
