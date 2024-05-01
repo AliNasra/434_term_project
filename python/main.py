@@ -125,7 +125,7 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
     oc             = 1
     ta             = 1
     aa             = 1
-    time_window    = 2
+    time_window    = 0.2
     time_step      = time_window * 0.1
     rv             = 6
     rw             = 6
@@ -210,7 +210,7 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
                 print("Goal:",goal)
                 print("Point:",point)
                 print("Yaw:",yaw)
-                print("Distance to Goal:",euclidean_distance)
+                print("Distance to Goal:",euclidean_distance, " Index:", target_index,"out of",len(r_coordinates)-1)
                 print("Steering:",s)
                 print("Velocity:",v)
                 print("***************")
