@@ -117,7 +117,7 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
     m                = mujoco.MjModel.from_xml_string(scene.to_xml_string(), assets=all_assets)
     d                = mujoco.MjData(m)
     max_v            = 3
-    max_w            = 6
+    max_w            = 7
     min_v            = -2
     min_w            = -1*max_w
     gc               = 1
@@ -125,7 +125,7 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
     oc               = 1
     ta               = 1
     aa               = 1
-    time_window      = 0.2
+    time_window      = 0.4
     time_step        = time_window * 0.1
     rv               = 6
     rw               = 6
