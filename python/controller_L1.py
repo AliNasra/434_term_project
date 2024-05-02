@@ -27,7 +27,7 @@ def calculate_circular_trajectory(pose,v,w,aa,ta,time_step,time_window):
 
 
 def filter_obstacles(pose,obstacles):
-	radius        = 1
+	radius        = 1.5
 	distances = np.linalg.norm(obstacles - np.array([pose[0], pose[1]]), axis=1)
 	# Find the indices of points where the distance is less than 4
 	indices = np.where(distances < radius)
@@ -102,9 +102,9 @@ def filter_routes(costs):
 		count_true       = np.sum(mask)
 		if count_true != len(ideal_controls):
 			ideal_controls   = ideal_controls[mask]
-		limit            = int(math.ceil(len(ideal_controls)*0.6))
+		limit            = int(math.ceil(len(ideal_controls)*0.7))
 		ideal_controls   = ideal_controls[:limit]
-		limit            = int(math.ceil(len(ideal_controls)*0.3))
+		limit            = int(math.ceil(len(ideal_controls)*0.25))
 		sorted_indices   = np.argsort(ideal_controls[:, 1])
 		# Sort the array using the sorted indices
 		ideal_controls   = ideal_controls[sorted_indices]

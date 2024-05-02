@@ -116,8 +116,8 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
     global sx,sy,gx,gy,syaw
     m                = mujoco.MjModel.from_xml_string(scene.to_xml_string(), assets=all_assets)
     d                = mujoco.MjData(m)
-    max_v            = 3
-    max_w            = 7
+    max_v            = 2
+    max_w            = 10
     min_v            = -2
     min_w            = -1*max_w
     gc               = 1
@@ -125,10 +125,10 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
     oc               = 1
     ta               = 1
     aa               = 1
-    time_window      = 0.4
+    time_window      = 0.6
     time_step        = time_window * 0.1
-    rv               = 6
-    rw               = 6
+    rv               = 8
+    rw               = 8
     look_ahead_index = 4
     #m.opt.timestep = time_step
     #vehicle_width  = 0.25
