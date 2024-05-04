@@ -118,22 +118,22 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
     d              = mujoco.MjData(m)
     max_v          = 2
     max_w          = 10
-    min_v          = -1
+    min_v          = 0
     min_w          = -1*max_w
     gc             = 1
     vc             = 1
     oc             = 1
-    ta             = 0.5
-    aa             = 2
-    time_window    = 0.3
+    ta             = 0.1
+    aa             = 0.2
+    time_window    = 1.8
     time_step      = time_window*0.1
     rv             = 6
     rw             = 6
     #m.opt.timestep = time_step
     #vehicle_width  = 0.25
     #vehicle_height = 0.2965
-    vehicle_width = 0.5
-    vehicle_height= 0.5
+    vehicle_width = 0.6
+    vehicle_height= 0.6
     rx,ry          = AStar(sx,sy,gx,gy,0.15,obstacles[:,0],obstacles[:,1])
     rx.reverse()
     ry.reverse()
@@ -211,7 +211,8 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
                     yaw  = calculate_yaw(prev_point,point)
                     #yaw   = yaw + steering.ctrl[0] * time_step
                 s,v    = pick_trajectory(point,goal,obstacles,velocity_val,angular_val,max_v,max_w,min_v,min_w,gc,vc,oc,ta,aa,time_window,time_step,rv,rw,vehicle_width,vehicle_height,yaw)
-                
+                #point,goal,obstacles,v,w,max_v,max_w,min_v,min_w,gc,vc,oc,ta,aa,time_window,time_step,rv,rw,vehicle_width,vehicle_height,yaw
+                #point,goal,obstacles,v,w,max_v,max_w,min_v,min_w,gc,vc,oc,ta,aa,time_window,time_step,rv,rw,vehicle_width,vehicle_height,yaw
                 print("Final Target:",gx,gy)
                 print("Goal:",goal)
                 print("Point:",point)

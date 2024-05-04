@@ -11,7 +11,7 @@ def calculate_yaw(first_point,second_point):
 	angle = (math.atan2(second_point[1]-first_point[1],second_point[0]-first_point[0])+2*math.pi)%(2*math.pi)
 	return angle
 
-def calculate_circular_trajectory(pose,v,w,aa,ta,time_step,time_window):
+def calculate_circular_trajectory(pose,v,w,time_step,time_window):
 	trajectory = np.array([[pose[0],pose[1],pose[2],v,w]])
 	x          = pose[0]
 	y          = pose[1]
@@ -23,7 +23,7 @@ def calculate_circular_trajectory(pose,v,w,aa,ta,time_step,time_window):
 		y = y + v * math.sin(theta) * time_step                        # Calculate the new y position
 		trajectory = np.vstack((trajectory, [x,y,theta,v,w])) 		   # Append pose info into the trajectory list	
 		time_count = time_count + time_step                            # Increment the time counter until it reaches the time window limit
-	return trajectory
+	return trajectory[1:]
 
 
 def filter_obstacles(pose,obstacles):
@@ -50,6 +50,8 @@ def calculate_velocity_range(max_v,min_v,max_w,min_w,v,w,aa,ta,time_window):
 def calculate_obstacle_cost(coefficient,trajectory,obstacles,vehicle_width,vehicle_height):
 	ox = obstacles[:, 0]
 	oy = obstacles[:, 1]
+	#plt.scatter(ox,oy)
+	#plt.show()
 	dx = trajectory[:, 0] - ox[:, None]
 	dy = trajectory[:, 1] - oy[:, None]
 	r = np.hypot(dx, dy)
@@ -60,6 +62,8 @@ def calculate_obstacle_cost(coefficient,trajectory,obstacles,vehicle_width,vehic
 	local_ob = local_ob.reshape(-1, local_ob.shape[-1])
 	local_ob = np.array([local_ob @ x for x in rot])
 	local_ob = local_ob.reshape(-1, local_ob.shape[-1])
+	#plt.scatter(local_ob[:,0],local_ob[:,1])
+	#plt.show()
 	upper_check = local_ob[:, 0] <= vehicle_height / 2
 	right_check = local_ob[:, 1] <= vehicle_width / 2
 	bottom_check = local_ob[:, 0] >= -vehicle_height / 2
@@ -80,8 +84,8 @@ def calculate_goal_cost(coefficient,trajectory,goal,point):
 	dx            = goal[0] - point[0]
 	dy            = goal[1] - point[1]
 	error_angle   = (math.atan2(dy, dx) + 2*math.pi)%(2*math.pi)
-	dx            = trajectory[1, 0] - trajectory[0, 0]
-	dy            = trajectory[1, 1] - trajectory[0, 1]
+	dx            = trajectory[0, 0] - point[0]
+	dy            = trajectory[0, 1] - point[1]
 	heading_angle = (math.atan2(dy, dx) + 2*math.pi)%(2*math.pi)
 	cost          = abs(heading_angle-error_angle)
 	return cost
@@ -96,15 +100,16 @@ def filter_routes(costs):
 	ideal_controls   = np.array(costs)
 	sorted_indices_0 = np.argsort(ideal_controls[:, 2])
 	ideal_controls   = ideal_controls[sorted_indices_0]
-	value_to_remove  = float("Inf")
-	#value_to_remove  = 5
-	mask             = ideal_controls[:, 2] != value_to_remove
+	#value_to_remove  = float("Inf")
+	value_to_remove  = 100000
+	mask             = ideal_controls[:, 2] < value_to_remove
 	count_true       = np.sum(mask)
-	if count_true > len(ideal_controls)*0.2:
+	print("Invalid Routes:",len(ideal_controls)-count_true)
+	if count_true > 0:
 		ideal_controls   = ideal_controls[mask]
-	#limit            = int(math.ceil(len(ideal_controls)*0.6))
+	#limit            = int(math.ceil(len(ideal_controls)*0.4))
 	#ideal_controls   = ideal_controls[:limit]
-	limit            = int(math.ceil(len(ideal_controls)*0.5))
+	limit            = int(math.ceil(len(ideal_controls)*0.3))
 	sorted_indices   = np.argsort(ideal_controls[:, 0])
 	# Sort the array using the sorted indices
 	ideal_controls   = ideal_controls[sorted_indices]
@@ -139,7 +144,7 @@ def pick_trajectory(point,goal,obstacles,v,w,max_v,max_w,min_v,min_w,gc,vc,oc,ta
 	while vel_counter<=vel_range[0][1]:
 		while rot_counter<=vel_range[1][1]:
 			#counter = counter + 1
-			trajectory = calculate_circular_trajectory(pose,vel_counter,rot_counter,aa,ta,time_step,time_window)
+			trajectory = calculate_circular_trajectory(pose,vel_counter,rot_counter,time_step,time_window)
 			#traj_x.extend(list(trajectory[:,0]))
 			#traj_y.extend(list(trajectory[:,1]))
 			if len(trajectory) == 0:
