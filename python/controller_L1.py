@@ -8,11 +8,11 @@ def calculate_distance(first_point,second_point):
 	return math.sqrt(dist_sqr)
 
 def calculate_yaw(first_point,second_point):
-	angle = (math.atan2(second_point[1]-first_point[1],second_point[0]-first_point[0]) + 2*math.pi)%(2*math.pi)
+	angle = (math.atan2(second_point[1]-first_point[1],second_point[0]-first_point[0])+2*math.pi)%(2*math.pi)
 	return angle
 
 def calculate_circular_trajectory(pose,v,w,aa,ta,time_step,time_window):
-	trajectory = np.array([[0,0,0,0,0]])
+	trajectory = np.array([[pose[0],pose[1],pose[2],v,w]])
 	x          = pose[0]
 	y          = pose[1]
 	theta      = pose[2]
@@ -23,11 +23,11 @@ def calculate_circular_trajectory(pose,v,w,aa,ta,time_step,time_window):
 		y = y + v * math.sin(theta) * time_step                        # Calculate the new y position
 		trajectory = np.vstack((trajectory, [x,y,theta,v,w])) 		   # Append pose info into the trajectory list	
 		time_count = time_count + time_step                            # Increment the time counter until it reaches the time window limit
-	return trajectory[1:]
+	return trajectory
 
 
 def filter_obstacles(pose,obstacles):
-	radius        = 1.5
+	radius        = 3
 	distances = np.linalg.norm(obstacles - np.array([pose[0], pose[1]]), axis=1)
 	# Find the indices of points where the distance is less than 4
 	indices = np.where(distances < radius)
@@ -63,7 +63,7 @@ def calculate_obstacle_cost(coefficient,trajectory,obstacles,vehicle_width,vehic
 	upper_check = local_ob[:, 0] <= vehicle_height / 2
 	right_check = local_ob[:, 1] <= vehicle_width / 2
 	bottom_check = local_ob[:, 0] >= -vehicle_height / 2
-	left_check = local_ob[:, 1] >= -vehicle_width / 2
+	left_check = local_ob[:, 1] >= -vehicle_width /2
 	if (np.logical_and(np.logical_and(upper_check, right_check),
                            np.logical_and(bottom_check, left_check))).any():
 		return float("Inf")
@@ -79,10 +79,10 @@ def calculate_goal_cost(coefficient,trajectory,goal,point):
 	#cost = coefficient * abs(math.atan2(math.sin(cost_angle), math.cos(cost_angle)))
 	dx            = goal[0] - point[0]
 	dy            = goal[1] - point[1]
-	error_angle   = (math.atan2(dy, dx)+2*math.pi)%(2*math.pi)
-	dx            = trajectory[1, 0] - point[0]
-	dy            = trajectory[1, 1] - point[1]
-	heading_angle = (math.atan2(dy, dx)+2*math.pi)%(2*math.pi)
+	error_angle   = (math.atan2(dy, dx) + 2*math.pi)%(2*math.pi)
+	dx            = trajectory[1, 0] - trajectory[0, 0]
+	dy            = trajectory[1, 1] - trajectory[0, 1]
+	heading_angle = (math.atan2(dy, dx) + 2*math.pi)%(2*math.pi)
 	cost          = abs(heading_angle-error_angle)
 	return cost
 
@@ -92,32 +92,30 @@ def calculate_velocity_cost(coefficient, trajectory,max_v):
 	return cost
 
 def filter_routes(costs):
-	try:
-		#print("Number of Routes Created:",len(costs))
-		ideal_controls   = np.array(costs)
-		sorted_indices_0 = np.argsort(ideal_controls[:, 2])
-		ideal_controls   = ideal_controls[sorted_indices_0]
-		value_to_remove  = float("Inf")
-		mask             = ideal_controls[:, 2] != value_to_remove
-		count_true       = np.sum(mask)
-		if count_true != len(ideal_controls):
-			ideal_controls   = ideal_controls[mask]
-		limit            = int(math.ceil(len(ideal_controls)*0.7))
-		ideal_controls   = ideal_controls[:limit]
-		limit            = int(math.ceil(len(ideal_controls)*0.25))
-		sorted_indices   = np.argsort(ideal_controls[:, 1])
-		# Sort the array using the sorted indices
-		ideal_controls   = ideal_controls[sorted_indices]
-		ideal_controls   = ideal_controls[:limit]
-		#limit            = int(math.ceil(len(filtered_sorted)*0.5))
-		sorted_indices_2 = np.argsort(ideal_controls[:, 0])
-		# Sort the array using the sorted indices
-		ideal_controls  = ideal_controls[sorted_indices_2]
-		#print(sorted_array_2)
-		#print("Control Vals:",sorted_array_2[0,3:])
-		return ideal_controls[0,3:]
-	except:
-		return np.array([0,0])
+	#print("Number of Routes Created:",len(costs))
+	ideal_controls   = np.array(costs)
+	sorted_indices_0 = np.argsort(ideal_controls[:, 2])
+	ideal_controls   = ideal_controls[sorted_indices_0]
+	value_to_remove  = float("Inf")
+	#value_to_remove  = 5
+	mask             = ideal_controls[:, 2] != value_to_remove
+	count_true       = np.sum(mask)
+	if count_true > len(ideal_controls)*0.2:
+		ideal_controls   = ideal_controls[mask]
+	#limit            = int(math.ceil(len(ideal_controls)*0.6))
+	#ideal_controls   = ideal_controls[:limit]
+	limit            = int(math.ceil(len(ideal_controls)*0.5))
+	sorted_indices   = np.argsort(ideal_controls[:, 0])
+	# Sort the array using the sorted indices
+	ideal_controls   = ideal_controls[sorted_indices]
+	ideal_controls   = ideal_controls[:limit]
+	#limit            = int(math.ceil(len(filtered_sorted)*0.5))
+	sorted_indices_2 = np.argsort(ideal_controls[:, 1])
+	# Sort the array using the sorted indices
+	ideal_controls  = ideal_controls[sorted_indices_2]
+	#print(sorted_array_2)
+	#print("Control Vals:",sorted_array_2[0,3:])
+	return ideal_controls[0,3:]
 
 
 
