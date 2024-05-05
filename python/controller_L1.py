@@ -75,7 +75,7 @@ def calculate_obstacle_cost(coefficient,trajectory,obstacles,vehicle_width,vehic
 	return coefficient / min_r  # OK
 
 
-def calculate_goal_cost(coefficient,trajectory,goal,point):
+def calculate_goal_cost(goal,point,yaw):
 	#dx = goal[0] - trajectory[-1, 0]
 	#dy = goal[1] - trajectory[-1, 1]
 	#error_angle = math.atan2(dy, dx)
@@ -84,10 +84,10 @@ def calculate_goal_cost(coefficient,trajectory,goal,point):
 	dx            = goal[0] - point[0]
 	dy            = goal[1] - point[1]
 	error_angle   = (math.atan2(dy, dx) + 2*math.pi)%(2*math.pi)
-	dx            = trajectory[0, 0] - point[0]
-	dy            = trajectory[0, 1] - point[1]
-	heading_angle = (math.atan2(dy, dx) + 2*math.pi)%(2*math.pi)
-	cost          = abs(heading_angle-error_angle)
+	#dx            = trajectory[0, 0] - point[0]
+	#dy            = trajectory[0, 1] - point[1]
+	#heading_angle = (math.atan2(dy, dx) + 2*math.pi)%(2*math.pi)
+	cost          = abs(yaw-error_angle)
 	return cost
 
 
@@ -127,6 +127,7 @@ def filter_routes(costs):
 def pick_trajectory(point,goal,obstacles,v,w,max_v,max_w,min_v,min_w,gc,vc,oc,ta,aa,time_window,time_step,rv,rw,vehicle_width,vehicle_height,yaw):
 	
 	vel_range      = calculate_velocity_range(max_v,min_v,max_w,min_w,v,w,aa,ta,time_window)
+	print("Velocities Ranges:",vel_range)
 	#print("vel_range:",vel_range)
 	#min_cost       = float("Inf")
 	pose           = np.array([point[0],point[1],yaw])
@@ -150,7 +151,7 @@ def pick_trajectory(point,goal,obstacles,v,w,max_v,max_w,min_v,min_w,gc,vc,oc,ta
 			if len(trajectory) == 0:
 				rot_counter = rot_counter + rw
 				continue
-			cost_1     = calculate_goal_cost(gc,trajectory,goal,point)  
+			cost_1     = calculate_goal_cost(goal,point,trajectory[0,2])  
 			cost_2	   = calculate_velocity_cost(vc,trajectory,max_v)
 			cost_3     = 0
 			if len(obstacles_list)>0:
@@ -179,45 +180,23 @@ def pick_trajectory(point,goal,obstacles,v,w,max_v,max_w,min_v,min_w,gc,vc,oc,ta
 
 	return ideal_controls[1],ideal_controls[0]
 
-
-
-def get_obstacle_points(m):
-	obstacle_x  = []
-	obstacle_y  = []
-	obstacles_no = len(m.geom_pos)-12
-	for i in range(1,obstacles_no,1):		
-		pos_x             = m.geom_pos[i][0]
-		pos_y             = m.geom_pos[i][1]
-		size_x            = m.geom_size[i][0]
-		size_y            = m.geom_size[i][1]
-		increment_x       = 0
-		increment_y       = 0
-		while increment_x <= size_x:
-				#Add 2 points on the right
-				obstacle_x.append(pos_x+increment_x)
-				obstacle_x.append(pos_x+increment_x)
-				obstacle_y.append(pos_y+size_y)
-				obstacle_y.append(pos_y-size_y)
-				#Add 2 points on the left
-				obstacle_x.append(pos_x-increment_x)
-				obstacle_x.append(pos_x-increment_x)
-				obstacle_y.append(pos_y+size_y)
-				obstacle_y.append(pos_y-size_y)
-				increment_x = increment_x + 0.1	
-
-		while increment_y <= size_y:
-				#Add 2 points on the left
-				obstacle_x.append(pos_x+size_x)
-				obstacle_x.append(pos_x+size_x)
-				obstacle_y.append(pos_y+increment_y)
-				obstacle_y.append(pos_y-increment_y)
-				#Add 2 points on the right
-				obstacle_x.append(pos_x-size_x)
-				obstacle_x.append(pos_x-size_x)
-				obstacle_y.append(pos_y+increment_y)
-				obstacle_y.append(pos_y-increment_y)
-				increment_y = increment_y + 0.1
-	#plt.scatter(obstacle_x,obstacle_y)
-	#plt.show()
-	return obstacle_x.copy(),obstacle_y.copy()
 	
+def mat2euler(mat):
+	mat = np.asarray(mat, dtype=np.float64)
+	_FLOAT_EPS = np.finfo(np.float64).eps
+	_EPS4 = _FLOAT_EPS * 4.0
+	assert mat.shape[-2:] == (3, 3), "Invalid shape matrix {}".format(mat)
+
+	cy = np.sqrt(mat[..., 2, 2] * mat[..., 2, 2] + mat[..., 1, 2] * mat[..., 1, 2])
+	condition = cy > _EPS4
+	euler = np.empty(mat.shape[:-1], dtype=np.float64)
+	euler[..., 2] = np.where(condition,
+                             -np.arctan2(mat[..., 0, 1], mat[..., 0, 0]),
+                             -np.arctan2(-mat[..., 1, 0], mat[..., 1, 1]))
+	euler[..., 1] = np.where(condition,
+                             -np.arctan2(-mat[..., 0, 2], cy),
+                             -np.arctan2(-mat[..., 0, 2], cy))
+	euler[..., 0] = np.where(condition,
+                             -np.arctan2(mat[..., 1, 2], mat[..., 2, 2]),
+                             0.0)
+	return euler

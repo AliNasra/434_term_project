@@ -116,24 +116,25 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
     global sx,sy,gx,gy,syaw
     m              = mujoco.MjModel.from_xml_string(scene.to_xml_string(), assets=all_assets)
     d              = mujoco.MjData(m)
-    max_v          = 2
+    max_v          = 2.5
     max_w          = 10
     min_v          = 0
     min_w          = -1*max_w
     gc             = 1
     vc             = 1
     oc             = 1
-    ta             = 0.1
-    aa             = 0.2
-    time_window    = 1.8
+    time_window    = 1.5
     time_step      = time_window*0.1
-    rv             = 6
-    rw             = 6
+    ta             = 1
+    aa             = max_w/(0.8*time_window)
+    rv             = 7
+    rw             = 7
+    look_ahead_in  = 3
     #m.opt.timestep = time_step
     #vehicle_width  = 0.25
     #vehicle_height = 0.2965
-    vehicle_width = 0.6
-    vehicle_height= 0.6
+    vehicle_width  = 0.5
+    vehicle_height = 0.5
     rx,ry          = AStar(sx,sy,gx,gy,0.15,obstacles[:,0],obstacles[:,1])
     rx.reverse()
     ry.reverse()
@@ -161,7 +162,8 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
         #point          = np.array(d.body("buddy").xpos[:2])
         point          = np.array([d.body("wheel_fl").xpos[:2],d.body("wheel_fr").xpos[:2],d.body("wheel_bl").xpos[:2],d.body("wheel_br").xpos[:2]])
         point          = np.mean(point, axis=0)
-        yaw            =  0
+        yaw            = 0
+        yaw_2          = 0
         #prev_point     = np.array(d.body("buddy").xpos[:2])
         visualize(r_coordinates,viewer)
         
@@ -181,10 +183,10 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
                 #  Find the index of the node with the minimum distance
                 closest_index = np.argmin(distances)
                 target_index  = 0
-                if closest_index + 3 > len(r_coordinates)-1:
+                if closest_index + look_ahead_in > len(r_coordinates)-1:
                     target_index = len(r_coordinates)-1
                 else:
-                    target_index = closest_index + 3
+                    target_index = closest_index + look_ahead_in
                 goal          = np.array(r_coordinates[target_index])
                 squared_diff = (point - np.array([gx,gy])) ** 2
                 # Sum the squared differences along the axis of the features (axis=1 for 2D)
@@ -205,10 +207,24 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
                 #print("Translational velocity:",velocity_val)
                 #print("Angular velocity:",angular_val) 
                 if syaw != None:
-                    yaw  = syaw + (math.pi/2)
+                    yaw  = syaw %(2*math.pi)
+                    print("Start Yaw = ",yaw)
                     syaw = None
                 else:
-                    yaw  = calculate_yaw(prev_point,point)
+                    inrotmat = np.array(d.body("buddy").xmat).reshape(3, 3)
+                    euler = mat2euler(inrotmat)
+                    #myaw  = (euler[2]+math.pi/2)*(180/math.pi)
+                    yaw   = (euler[2] + 2*math.pi)%(2*math.pi)
+                    yaw_2  = calculate_yaw(prev_point,point)
+                    #print("Measured Yaw:",yaw)
+                    #print("Calculated_Yaw:",yaw_2)
+                
+                #print("##########################")
+                #print(syaw)
+                #print("Calculated Yaw:",yaw*180/math.pi)
+                
+                #print("Measured Yaw:",myaw)
+                #print("##########################")          
                     #yaw   = yaw + steering.ctrl[0] * time_step
                 s,v    = pick_trajectory(point,goal,obstacles,velocity_val,angular_val,max_v,max_w,min_v,min_w,gc,vc,oc,ta,aa,time_window,time_step,rv,rw,vehicle_width,vehicle_height,yaw)
                 #point,goal,obstacles,v,w,max_v,max_w,min_v,min_w,gc,vc,oc,ta,aa,time_window,time_step,rv,rw,vehicle_width,vehicle_height,yaw
@@ -216,12 +232,12 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
                 print("Final Target:",gx,gy)
                 print("Goal:",goal)
                 print("Point:",point)
-                print("Yaw:",yaw)
+                print("Measured Yaw -used one-:",yaw)
+                print("Calculated Yaw:",yaw_2)
                 print("Distance to Goal:",euclidean_distance)
                 print("Steering:",s)
                 print("Velocity:",v)
                 print("***************")
-                
                 velocity.ctrl = v # update velocity control value
                 steering.ctrl = s # update steering control value
                 prev_point    = point.copy()
