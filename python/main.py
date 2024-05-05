@@ -118,14 +118,14 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
     d              = mujoco.MjData(m)
     max_v          = 2.5
     max_w          = 10
-    min_v          = 0
+    min_v          = 0.2
     min_w          = -1*max_w
     gc             = 1
     vc             = 1
     oc             = 1
-    time_window    = 1.5
+    time_window    = 0.6
     time_step      = time_window*0.1
-    ta             = 1
+    ta             = max_v/(1.5*time_window)
     aa             = max_w/(0.8*time_window)
     rv             = 7
     rw             = 7
@@ -163,10 +163,11 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
         point          = np.array([d.body("wheel_fl").xpos[:2],d.body("wheel_fr").xpos[:2],d.body("wheel_bl").xpos[:2],d.body("wheel_br").xpos[:2]])
         point          = np.mean(point, axis=0)
         yaw            = 0
-        yaw_2          = 0
+        #yaw_2          = 0
         #prev_point     = np.array(d.body("buddy").xpos[:2])
-        visualize(r_coordinates,viewer)
-        
+        tile_count     = visualize(r_coordinates,viewer)
+        start_count    = tile_count
+        tile_count     = initalize_route(int(time_window//time_step),viewer,start_count)
         # Close the viewer automatically after 30 wall-seconds.
         start = time.time()
         while viewer.is_running() and time.time() - start < 10000:
@@ -226,21 +227,23 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
                 #print("Measured Yaw:",myaw)
                 #print("##########################")          
                     #yaw   = yaw + steering.ctrl[0] * time_step
-                s,v    = pick_trajectory(point,goal,obstacles,velocity_val,angular_val,max_v,max_w,min_v,min_w,gc,vc,oc,ta,aa,time_window,time_step,rv,rw,vehicle_width,vehicle_height,yaw)
+                s,v,traj    = pick_trajectory(point,goal,obstacles,velocity_val,angular_val,max_v,max_w,min_v,min_w,gc,vc,oc,ta,aa,time_window,time_step,rv,rw,vehicle_width,vehicle_height,yaw)
                 #point,goal,obstacles,v,w,max_v,max_w,min_v,min_w,gc,vc,oc,ta,aa,time_window,time_step,rv,rw,vehicle_width,vehicle_height,yaw
                 #point,goal,obstacles,v,w,max_v,max_w,min_v,min_w,gc,vc,oc,ta,aa,time_window,time_step,rv,rw,vehicle_width,vehicle_height,yaw
-                print("Final Target:",gx,gy)
-                print("Goal:",goal)
-                print("Point:",point)
-                print("Measured Yaw -used one-:",yaw)
-                print("Calculated Yaw:",yaw_2)
-                print("Distance to Goal:",euclidean_distance)
-                print("Steering:",s)
-                print("Velocity:",v)
+                #print("Final Target:",gx,gy)
+                #print("Goal:",goal)
+                #print("Point:",point)
+                #print("Measured Yaw -used one-:",yaw)
+                #print("Calculated Yaw:",yaw_2)
+                vizualize_route(traj,viewer,start_count)
+                print("Distance to Goal:",euclidean_distance," with index",target_index,"/",(len(r_coordinates)-1))
+                #print("Steering:",s)
+                #print("Velocity:",v)
                 print("***************")
                 velocity.ctrl = v # update velocity control value
                 steering.ctrl = s # update steering control value
                 prev_point    = point.copy()
+                tile_count    = addpoint(point,viewer,tile_count)
                 # mj_step can be replaced with code that also evaluates
                 # a policy and applies a control signal before stepping the physics.
                 mujoco.mj_step(m, d)

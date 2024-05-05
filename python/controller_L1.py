@@ -27,7 +27,7 @@ def calculate_circular_trajectory(pose,v,w,time_step,time_window):
 
 
 def filter_obstacles(pose,obstacles):
-	radius        = 3
+	radius        = 2
 	distances = np.linalg.norm(obstacles - np.array([pose[0], pose[1]]), axis=1)
 	# Find the indices of points where the distance is less than 4
 	indices = np.where(distances < radius)
@@ -101,10 +101,10 @@ def filter_routes(costs):
 	sorted_indices_0 = np.argsort(ideal_controls[:, 2])
 	ideal_controls   = ideal_controls[sorted_indices_0]
 	#value_to_remove  = float("Inf")
-	value_to_remove  = 100000
+	value_to_remove  = 100000000
 	mask             = ideal_controls[:, 2] < value_to_remove
 	count_true       = np.sum(mask)
-	print("Invalid Routes:",len(ideal_controls)-count_true)
+	#print("Invalid Routes:",len(ideal_controls)-count_true)
 	if count_true > 0:
 		ideal_controls   = ideal_controls[mask]
 	#limit            = int(math.ceil(len(ideal_controls)*0.4))
@@ -127,7 +127,7 @@ def filter_routes(costs):
 def pick_trajectory(point,goal,obstacles,v,w,max_v,max_w,min_v,min_w,gc,vc,oc,ta,aa,time_window,time_step,rv,rw,vehicle_width,vehicle_height,yaw):
 	
 	vel_range      = calculate_velocity_range(max_v,min_v,max_w,min_w,v,w,aa,ta,time_window)
-	print("Velocities Ranges:",vel_range)
+	#print("Velocities Ranges:",vel_range)
 	#print("vel_range:",vel_range)
 	#min_cost       = float("Inf")
 	pose           = np.array([point[0],point[1],yaw])
@@ -137,15 +137,17 @@ def pick_trajectory(point,goal,obstacles,v,w,max_v,max_w,min_v,min_w,gc,vc,oc,ta
 	resolution_w   = (vel_range[1][1]-vel_range[1][0])/rw
 	#ideal_traj     = []
 	obstacles_list = filter_obstacles(point,obstacles)
-	#counter        = 0
+	counter        = 0
 	#chosen_counter = 0
 	#traj_x         = []
 	#traj_y         = []
+	routes         = []
 	costs          = []
 	while vel_counter<=vel_range[0][1]:
 		while rot_counter<=vel_range[1][1]:
 			#counter = counter + 1
 			trajectory = calculate_circular_trajectory(pose,vel_counter,rot_counter,time_step,time_window)
+			routes.append(trajectory)
 			#traj_x.extend(list(trajectory[:,0]))
 			#traj_y.extend(list(trajectory[:,1]))
 			if len(trajectory) == 0:
@@ -156,7 +158,7 @@ def pick_trajectory(point,goal,obstacles,v,w,max_v,max_w,min_v,min_w,gc,vc,oc,ta
 			cost_3     = 0
 			if len(obstacles_list)>0:
 				cost_3     = calculate_obstacle_cost(oc,trajectory,obstacles_list,vehicle_width,vehicle_height)
-			costs.append([cost_1,cost_2,cost_3,vel_counter,rot_counter])
+			costs.append([cost_1,cost_2,cost_3,vel_counter,rot_counter,counter])
 			#cost_total = cost_1 + cost_2 + cost_3
 			#print("Angle:",trajectory[0,2],"Cost:",cost_total,"Coordinates: (",point[0],",",point[1],")")
 			#if (cost_total<min_cost and cost_3 != float("Inf")):
@@ -164,8 +166,9 @@ def pick_trajectory(point,goal,obstacles,v,w,max_v,max_w,min_v,min_w,gc,vc,oc,ta
 				#chosen_counter = counter
 				#print("Better route with angle =",trajectory[0,2])
 			#	ideal_traj = np.array(trajectory.copy())
-			#	min_cost   = cost_total			
+			#	min_cost   = cost_total	
 			rot_counter = rot_counter + resolution_w
+			counter = counter + 1
 		rot_counter = vel_range[1][0]
 		vel_counter = vel_counter + resolution_v
 	#print("Chosen Counter:",chosen_counter)
@@ -178,7 +181,7 @@ def pick_trajectory(point,goal,obstacles,v,w,max_v,max_w,min_v,min_w,gc,vc,oc,ta
 	#return ideal_traj,(ideal_traj[0,4]),(ideal_traj[0,3])
 	ideal_controls = filter_routes(costs)
 
-	return ideal_controls[1],ideal_controls[0]
+	return ideal_controls[1],ideal_controls[0],routes[int(ideal_controls[2])]
 
 	
 def mat2euler(mat):
