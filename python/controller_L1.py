@@ -43,8 +43,6 @@ def calculate_velocity_range(max_v,min_v,max_w,min_w,v,w,aa,ta,time_window):
 def calculate_obstacle_cost(coefficient,trajectory,obstacles,vehicle_width,vehicle_height):
 	ox = obstacles[:, 0]
 	oy = obstacles[:, 1]
-	#plt.scatter(ox,oy)
-	#plt.show()
 	dx = trajectory[:, 0] - ox[:, None]
 	dy = trajectory[:, 1] - oy[:, None]
 	r = np.hypot(dx, dy)
@@ -82,9 +80,10 @@ def filter_routes(costs):
 	ideal_controls   = np.array(costs)
 	sorted_indices_0 = np.argsort(ideal_controls[:, 2])
 	ideal_controls   = ideal_controls[sorted_indices_0]
-	value_to_remove  = 100000000
-	mask             = ideal_controls[:, 2] < value_to_remove
+	value_to_remove  = float('inf')
+	mask             = ideal_controls[:, 2] != value_to_remove
 	count_true       = np.sum(mask)
+	print("Valid Routes Count:",count_true)
 	if count_true > 0:
 		ideal_controls   = ideal_controls[mask]
 	limit            = int(math.ceil(len(ideal_controls)*0.3))

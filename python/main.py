@@ -221,7 +221,6 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
                 angular_val    = steering.ctrl[0]
                 if syaw != None:
                     yaw  = syaw %(2*math.pi)
-                    print("Start Yaw = ",yaw)
                     syaw = None
                 else:
                     inrotmat = np.array(d.body("buddy").xmat).reshape(3, 3)
@@ -231,6 +230,9 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
                 s,v,traj    = pick_trajectory(point,goal,complete_obstacles,velocity_val,angular_val,max_v,max_w,min_v,min_w,gc,vc,oc,ta,aa,time_window,time_step,rv,rw,vehicle_width,vehicle_height,yaw)
                 vizualize_route(traj,viewer,start_count)
                 print("Distance to Goal:",euclidean_distance," with index",target_index,"/",(len(r_coordinates)-1))
+                print("Steering:",s)
+                print("Velocity:",v)
+                print("Coordinates: (",point[0],",",point[1],")")
                 print("***************")
                 velocity.ctrl = v # update velocity control value
                 steering.ctrl = s # update steering control value
