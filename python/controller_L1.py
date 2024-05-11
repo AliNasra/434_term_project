@@ -69,6 +69,8 @@ def calculate_goal_cost(goal,point,yaw):
 	dy            = goal[1] - point[1]
 	error_angle   = (math.atan2(dy, dx) + 2*math.pi)%(2*math.pi)
 	cost          = abs(yaw-error_angle)
+	if cost > math.pi:
+		cost = 2*math.pi - cost
 	return cost
 
 # Give precedence to routes with faster velocities 

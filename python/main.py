@@ -247,6 +247,9 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
                 print("Distance to Goal:",euclidean_distance," with index",target_index,"/",(len(r_coordinates)-1))
                 print("Steering:",s)
                 print("Velocity:",v)
+                print("Yaw:",yaw) 
+                #print("Calculated Yaw:",traj[0,2]) 
+                #print("Optimal Yaw:",(math.atan2(goal[1] - point[1],goal[0] - point[0]) + 2*math.pi)%(2*math.pi))
                 print("Coordinates: (",point[0],",",point[1],")")
                 print("***************")
                 velocity.ctrl = v # update velocity control value
