@@ -144,7 +144,7 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
     gc             = 1                        # A parameter for calibrating the goal cost, currently ineffectual
     vc             = 1                        # A parameter for calibrating the velocity cost, currently ineffectual
     oc             = 1                        # A parameter for calibrating the obstacle cost, currently ineffectual
-    time_window    = 0.5                      # Time Frame over which the dynamic trajectories are predicted
+    time_window    = 0.45                     # Time Frame over which the dynamic trajectories are predicted
     time_step      = time_window*0.1          # The time step. We sample 10 points per trajectory
     ta             = max_v/(1.2*time_window)  # Translational acceleration involved in calculating the velocity range
     aa             = max_w/(0.8*time_window)  # Rotational acceleration involved in calculating the steering range
@@ -181,8 +181,9 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
 
         velocity       = d.actuator("throttle_velocity")
         steering       = d.actuator("steering")
-        point          = np.array([d.body("wheel_fl").xpos[:2],d.body("wheel_fr").xpos[:2],d.body("wheel_bl").xpos[:2],d.body("wheel_br").xpos[:2]])
-        point          = np.mean(point, axis=0)
+        #point          = np.array([d.body("wheel_fl").xpos[:2],d.body("wheel_fr").xpos[:2],d.body("wheel_bl").xpos[:2],d.body("wheel_br").xpos[:2]])
+        #point          = np.mean(point, axis=0)
+        point          = d.body("buddy").xpos[:2]
         yaw            = 0
         tile_count     = visualize(r_coordinates,viewer)
         start_count    = tile_count
@@ -209,8 +210,9 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
                 #plt.scatter(complete_obstacles[:,0],complete_obstacles[:,1])
                 #plt.show()
                 goal          = []   # Dynamic goal
-                point         = np.array([d.body("wheel_fl").xpos[:2],d.body("wheel_fr").xpos[:2],d.body("wheel_bl").xpos[:2],d.body("wheel_br").xpos[:2]])
-                point         = np.mean(point, axis=0)
+                #point         = np.array([d.body("wheel_fl").xpos[:2],d.body("wheel_fr").xpos[:2],d.body("wheel_bl").xpos[:2],d.body("wheel_br").xpos[:2]])
+                #point         = np.mean(point, axis=0)
+                point         = d.body("buddy").xpos[:2]
                 distances     = np.linalg.norm(r_coordinates - point, axis=1)
                 #  Find the index of the node with the minimum distance
                 closest_index = np.argmin(distances)

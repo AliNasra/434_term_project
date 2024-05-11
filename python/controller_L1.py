@@ -18,9 +18,9 @@ def calculate_circular_trajectory(pose,v,w,time_step,time_window):
 		time_count = time_count + time_step                            # Increment the time counter until it reaches the time window limit
 	return trajectory[1:]
 
-# To conserve computational resources, only consider obstacles within radius of 3
+# To conserve computational resources, only consider obstacles within radius of 2
 def filter_obstacles(pose,obstacles):
-	radius        = 3
+	radius        = 2
 	distances = np.linalg.norm(obstacles - np.array([pose[0], pose[1]]), axis=1)
 	# Find the indices of points where the distance is less than 4
 	indices = np.where(distances < radius)
