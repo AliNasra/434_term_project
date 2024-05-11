@@ -21,13 +21,15 @@ def key_callback(keycode):
         paused = not paused
 
 paused    = False # Global variable to control the pause state.
-obstaclex = []
-obstacley = []
-sx        = 0
-sy        = 0
-gx        = 0
-gy        = 0
-syaw      = None
+obstaclex = []   # The x coordinates of the static obstacles are stored here
+obstacley = []   # The y coordinates of the static obstacles are stored here
+sx        = 0    # Start X coordinate of the robot
+sy        = 0    # Start Y coordinate of the robot
+gx        = 0    # Goal X coordinate of the robot
+gy        = 0    # Goal Y coordinate of the robot
+syaw      = None # Start Yaw of the robot
+
+# A function to sample points on the exterior of the static triangular obstacles
 
 def add_obstacles(pos_x,pos_y,size_x,size_y):
     increment_x       = 0
@@ -61,17 +63,21 @@ def add_obstacles(pos_x,pos_y,size_x,size_y):
     obstaclex.extend(obstacle_x)
     obstacley.extend(obstacle_y)
 
+# A function to sample points on the exterior of the dynaqmic circular obstacles
+
 def add_obstacles_dynamic(pos_x,pos_y,radius):
     list_x  = np.array([])
     list_y  = np.array([])
     counter = 0
     while counter < 2*math.pi:
-        x      = pos_x + radius*math.cos(counter)
-        y      = pos_y + radius*math.sin(counter)
-        list_x = np.append(list_x, x)
-        list_y = np.append(list_y, y)
+        x       = pos_x + radius*math.cos(counter)
+        y       = pos_y + radius*math.sin(counter)
+        list_x  = np.append(list_x, x)
+        list_y  = np.append(list_y, y)
         counter += 0.3
     return list_x,list_y
+
+# Creates the surrounding Mujoco environment
 
 def create_scenario():
     global sx,sy,gx,gy,syaw
@@ -111,6 +117,7 @@ def create_scenario():
 
     start_yaw = random.randint(0, 359)
     robot.find("body", "buddy").set_attributes(pos=[start_pos[0]*2, start_pos[1]*2, 0.1], euler=[0, 0, start_yaw])
+    # assigning the global variables given the randomly generated input
     sx   = start_pos[0]*2
     sy   = start_pos[1]*2
     gx   = final_pos[0]*2
@@ -123,27 +130,30 @@ def create_scenario():
 
     return scene, all_assets
 
+# Main Driver Function
+
 def execute_scenario(obstacles,scene, ASSETS=dict()):
     global sx,sy,gx,gy,syaw
+    # The main parameters for the simulation
     m              = mujoco.MjModel.from_xml_string(scene.to_xml_string(), assets=all_assets)
     d              = mujoco.MjData(m)
-    max_v          = 2.5
-    max_w          = 12
-    min_v          = 0.2
-    min_w          = -1*max_w
-    gc             = 1
-    vc             = 1
-    oc             = 1
-    time_window    = 0.5
-    time_step      = time_window*0.1
-    ta             = max_v/(1.2*time_window)
-    aa             = max_w/(0.8*time_window)
-    rv             = 8
-    rw             = 8
-    look_ahead_in  = 3
-    vehicle_width  = 0.5
-    vehicle_height = 0.5
-    rx,ry          = AStar(sx,sy,gx,gy,0.15,obstacles[:,0],obstacles[:,1])
+    max_v          = 2.5                      # Maximum value the velocity control variable can take
+    max_w          = 12                       # Maximum value the steering control variable can take
+    min_v          = 0.2                      # Minimum value the velocity control variable can take
+    min_w          = -1*max_w                 # Minimum value the steering control variable can take
+    gc             = 1                        # A parameter for calibrating the goal cost, currently ineffectual
+    vc             = 1                        # A parameter for calibrating the velocity cost, currently ineffectual
+    oc             = 1                        # A parameter for calibrating the obstacle cost, currently ineffectual
+    time_window    = 0.5                      # Time Frame over which the dynamic trajectories are predicted
+    time_step      = time_window*0.1          # The time step. We sample 10 points per trajectory
+    ta             = max_v/(1.2*time_window)  # Translational acceleration involved in calculating the velocity range
+    aa             = max_w/(0.8*time_window)  # Rotational acceleration involved in calculating the steering range
+    rv             = 8                        # Number of velocity samples
+    rw             = 8                        # Number of steering samples per velocity value 
+    look_ahead_in  = 3                        # Setting the goal 3 indices ahead of the closest index
+    vehicle_width  = 0.5                      # Robot's dimensions
+    vehicle_height = 0.5                      
+    rx,ry          = AStar(sx,sy,gx,gy,0.15,obstacles[:,0],obstacles[:,1]) #Route created by level_2 controller
     rx.reverse()
     ry.reverse()
     r_coordinates  = np.hstack((np.array(rx).reshape(-1, 1), np.array(ry).reshape(-1, 1)))
@@ -180,6 +190,7 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
         dynamic_coordinates_x = np.array([])
         dynamic_coordinates_y = np.array([])
         dynamic_coordinates   = np.array([])
+        # Generate dynamic obstacles
         for _, x in enumerate(dynamic_obstacles):
             px = m.geom_pos[x][0]
             py = m.geom_pos[x][1]
@@ -194,16 +205,17 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
 
             if not paused:
                 #print("Vel Value:",velocity.ctrl)
-                complete_obstacles = np.concatenate((obstacles, dynamic_coordinates))
+                complete_obstacles = np.concatenate((obstacles, dynamic_coordinates)) # combine static and dynamic obstacles
                 #plt.scatter(complete_obstacles[:,0],complete_obstacles[:,1])
                 #plt.show()
-                goal          = []
+                goal          = []   # Dynamic goal
                 point         = np.array([d.body("wheel_fl").xpos[:2],d.body("wheel_fr").xpos[:2],d.body("wheel_bl").xpos[:2],d.body("wheel_br").xpos[:2]])
                 point         = np.mean(point, axis=0)
                 distances     = np.linalg.norm(r_coordinates - point, axis=1)
                 #  Find the index of the node with the minimum distance
                 closest_index = np.argmin(distances)
                 target_index  = 0
+                # Set the next goal given the closest index
                 if closest_index + look_ahead_in > len(r_coordinates)-1:
                     target_index = len(r_coordinates)-1
                 else:
@@ -214,6 +226,7 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
                 sum_squared_diff = np.sum(squared_diff)
                 # Take the square root to get the Euclidean distance
                 euclidean_distance = np.sqrt(sum_squared_diff)
+                # Stop the simulation if the distance between the robot and the final target is less than 0.5
                 if euclidean_distance < 0.5:
                     print("Goal Reached")
                     return
@@ -226,7 +239,7 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
                     inrotmat = np.array(d.body("buddy").xmat).reshape(3, 3)
                     euler = mat2euler(inrotmat)
                     yaw   = (euler[2] + 2*math.pi)%(2*math.pi)
-
+                # Select a trajectory
                 s,v,traj    = pick_trajectory(point,goal,complete_obstacles,velocity_val,angular_val,max_v,max_w,min_v,min_w,gc,vc,oc,ta,aa,time_window,time_step,rv,rw,vehicle_width,vehicle_height,yaw)
                 vizualize_route(traj,viewer,start_count)
                 print("Distance to Goal:",euclidean_distance," with index",target_index,"/",(len(r_coordinates)-1))
@@ -236,7 +249,7 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
                 print("***************")
                 velocity.ctrl = v # update velocity control value
                 steering.ctrl = s # update steering control value
-                tile_count    = addpoint(point,viewer,tile_count)
+                tile_count    = addpoint(point,viewer,tile_count) # Visualize the robot's route
                 dynamic_coordinates_x = np.array([])
                 dynamic_coordinates_y = np.array([])
                 dynamic_coordinates   = np.array([])
@@ -260,7 +273,7 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
                     new_y                  = m.geom_pos[x][1]+dy*0.001
                     m.geom_pos[x][0]       = new_x
                     m.geom_pos[x][1]       = new_y
-                    x_l, y_l               = add_obstacles_dynamic(new_x,new_y,0.2)
+                    x_l, y_l               = add_obstacles_dynamic(new_x,new_y,0.2) # Update dynamic obstacles
                     dynamic_coordinates_x  = np.append(dynamic_coordinates_x, x_l)
                     dynamic_coordinates_y  = np.append(dynamic_coordinates_y, y_l)
                 dynamic_coordinates = np.column_stack((dynamic_coordinates_x, dynamic_coordinates_y))

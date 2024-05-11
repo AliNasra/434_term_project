@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-
+# Predict the trajectory over the next time window
 def calculate_circular_trajectory(pose,v,w,time_step,time_window):
 	trajectory = np.array([[pose[0],pose[1],pose[2],v,w]])
 	x          = pose[0]
@@ -18,7 +18,7 @@ def calculate_circular_trajectory(pose,v,w,time_step,time_window):
 		time_count = time_count + time_step                            # Increment the time counter until it reaches the time window limit
 	return trajectory[1:]
 
-
+# To conserve computational resources, only consider obstacles within radius of 3
 def filter_obstacles(pose,obstacles):
 	radius        = 3
 	distances = np.linalg.norm(obstacles - np.array([pose[0], pose[1]]), axis=1)
@@ -39,7 +39,7 @@ def calculate_velocity_range(max_v,min_v,max_w,min_w,v,w,aa,ta,time_window):
 	range_vel.append([max(w_lower,min_w),min(w_upper,max_w)])
 	return range_vel
 
-
+# Inf if the vehicle runs into an obstacle
 def calculate_obstacle_cost(coefficient,trajectory,obstacles,vehicle_width,vehicle_height):
 	ox = obstacles[:, 0]
 	oy = obstacles[:, 1]
@@ -63,7 +63,7 @@ def calculate_obstacle_cost(coefficient,trajectory,obstacles,vehicle_width,vehic
 	min_r = np.min(r)
 	return coefficient / min_r  # OK
 
-
+# Prioritize trajectories with yaw close to angle between the robot and the goal
 def calculate_goal_cost(goal,point,yaw):
 	dx            = goal[0] - point[0]
 	dy            = goal[1] - point[1]
@@ -71,11 +71,11 @@ def calculate_goal_cost(goal,point,yaw):
 	cost          = abs(yaw-error_angle)
 	return cost
 
-
+# Give precedence to routes with faster velocities 
 def calculate_velocity_cost(coefficient, trajectory,max_v):
 	cost = coefficient * (max_v - trajectory[0,3])
 	return cost
-
+# Filter routes based on 1- Obstacles 2- Velocity 3- Approximity to the Goal
 def filter_routes(costs):
 	ideal_controls   = np.array(costs)
 	sorted_indices_0 = np.argsort(ideal_controls[:, 2])
@@ -97,7 +97,7 @@ def filter_routes(costs):
 	return ideal_controls[0,3:]
 
 
-
+# Generate Trajectories and choose the most convenient
 def pick_trajectory(point,goal,obstacles,v,w,max_v,max_w,min_v,min_w,gc,vc,oc,ta,aa,time_window,time_step,rv,rw,vehicle_width,vehicle_height,yaw):
 	
 	vel_range      = calculate_velocity_range(max_v,min_v,max_w,min_w,v,w,aa,ta,time_window)
@@ -131,7 +131,7 @@ def pick_trajectory(point,goal,obstacles,v,w,max_v,max_w,min_v,min_w,gc,vc,oc,ta
 
 	return ideal_controls[1],ideal_controls[0],routes[int(ideal_controls[2])]
 
-	
+# Convert rotation matrix of a robot to euler-format orientation -> Necessary for calculating the Yaw
 def mat2euler(mat):
 	mat = np.asarray(mat, dtype=np.float64)
 	_FLOAT_EPS = np.finfo(np.float64).eps
