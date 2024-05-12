@@ -89,7 +89,7 @@ def create_scenario():
 
     for index, r in enumerate(rooms):
         (xmin, ymin, xmax, ymax) = cmpe434_dungeon.find_room_corners(r)
-        scene.worldbody.add('geom', name='R{}'.format(index), type='plane', size=[(xmax-xmin)+1, (ymax-ymin)+1, 0.1], rgba=[0.8, 0.6, 0.4, 1],  pos=[(xmin+xmax), (ymin+ymax), 0])
+        #scene.worldbody.add('geom', name='R{}'.format(index), type='plane', size=[(xmax-xmin)+1, (ymax-ymin)+1, 0.1], rgba=[0.8, 0.6, 0.4, 1],  pos=[(xmin+xmax), (ymin+ymax), 0])
         #add_obstacles((xmin+xmax),(ymin+ymax),(xmax-xmin)+1,(ymax-ymin)+1)
     for pos, tile in tiles.items():
         if tile == "#":
@@ -138,22 +138,22 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
     m              = mujoco.MjModel.from_xml_string(scene.to_xml_string(), assets=all_assets)
     d              = mujoco.MjData(m)
     max_v          = 2.5                      # Maximum value the velocity control variable can take
-    max_w          = 12                       # Maximum value the steering control variable can take
+    max_w          = 10                       # Maximum value the steering control variable can take
     min_v          = 0.2                      # Minimum value the velocity control variable can take
     min_w          = -1*max_w                 # Minimum value the steering control variable can take
     gc             = 1                        # A parameter for calibrating the goal cost, currently ineffectual
     vc             = 1                        # A parameter for calibrating the velocity cost, currently ineffectual
     oc             = 1                        # A parameter for calibrating the obstacle cost, currently ineffectual
-    time_window    = 0.45                     # Time Frame over which the dynamic trajectories are predicted
-    time_step      = time_window*0.1          # The time step. We sample 10 points per trajectory
+    time_window    = 0.80                     # Time Frame over which the dynamic trajectories are predicted
+    time_step      = time_window/5            # The time step. We sample 10 points per trajectory
     ta             = max_v/(1.2*time_window)  # Translational acceleration involved in calculating the velocity range
     aa             = max_w/(0.8*time_window)  # Rotational acceleration involved in calculating the steering range
-    rv             = 8                        # Number of velocity samples
-    rw             = 8                        # Number of steering samples per velocity value 
-    look_ahead_in  = 3                        # Setting the goal 3 indices ahead of the closest index
-    vehicle_width  = 0.5                      # Robot's dimensions
-    vehicle_height = 0.5                      
-    rx,ry          = AStar(sx,sy,gx,gy,0.15,obstacles[:,0],obstacles[:,1]) #Route created by level_2 controller
+    rv             = 7                        # Number of velocity samples
+    rw             = 9                        # Number of steering samples per velocity value 
+    look_ahead_in  = 5                        # Setting the goal 3 indices ahead of the closest index
+    vehicle_width  = 0.40                     # Robot's dimensions
+    vehicle_height = 0.45                      
+    rx,ry          = AStar(sx,sy,gx,gy,0.29,obstacles[:,0],obstacles[:,1]) #Route created by level_2 controller
     rx.reverse()
     ry.reverse()
     r_coordinates  = np.hstack((np.array(rx).reshape(-1, 1), np.array(ry).reshape(-1, 1)))
@@ -212,6 +212,7 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
                 goal          = []   # Dynamic goal
                 #point         = np.array([d.body("wheel_fl").xpos[:2],d.body("wheel_fr").xpos[:2],d.body("wheel_bl").xpos[:2],d.body("wheel_br").xpos[:2]])
                 #point         = np.mean(point, axis=0)
+                #size          = m.body("buddy").
                 point         = d.body("buddy").xpos[:2]
                 distances     = np.linalg.norm(r_coordinates - point, axis=1)
                 #  Find the index of the node with the minimum distance
