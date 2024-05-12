@@ -138,7 +138,7 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
     m              = mujoco.MjModel.from_xml_string(scene.to_xml_string(), assets=all_assets)
     d              = mujoco.MjData(m)
     max_v          = 2.5                      # Maximum value the velocity control variable can take
-    max_w          = 10                       # Maximum value the steering control variable can take
+    max_w          = 12                       # Maximum value the steering control variable can take
     min_v          = 0.2                      # Minimum value the velocity control variable can take
     min_w          = -1*max_w                 # Minimum value the steering control variable can take
     gc             = 1                        # A parameter for calibrating the goal cost, currently ineffectual
