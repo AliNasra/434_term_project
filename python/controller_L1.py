@@ -20,7 +20,7 @@ def calculate_circular_trajectory(pose,v,w,time_step,time_window):
 
 # To conserve computational resources, only consider obstacles within radius of 3
 def filter_obstacles(pose,obstacles):
-	radius        = 3
+	radius        = 2
 	distances = np.linalg.norm(obstacles - np.array([pose[0], pose[1]]), axis=1)
 	# Find the indices of points where the distance is less than 4
 	indices = np.where(distances < radius)
@@ -78,12 +78,13 @@ def calculate_velocity_cost(coefficient, trajectory,max_v):
 	cost = coefficient * (max_v - trajectory[0,3])
 	return cost
 # Filter routes based on 1- Obstacles 2- Velocity 3- Approximity to the Goal
-def filter_routes(costs,routes,obstacles):
+def filter_routes(costs):
 	ideal_controls   = np.array(costs)
 	sorted_indices_0 = np.argsort(ideal_controls[:, 2])
 	ideal_controls   = ideal_controls[sorted_indices_0]
-	value_to_remove  = float('inf')
-	mask             = ideal_controls[:, 2] != value_to_remove
+	#value_to_remove  = float('inf')
+	value_to_remove  = 5
+	mask             = ideal_controls[:, 2] < value_to_remove
 	count_true       = np.sum(mask)
 	print("Valid Routes Count:",count_true)
 	if count_true > 0:
@@ -134,7 +135,7 @@ def pick_trajectory(point,goal,obstacles,v,w,max_v,max_w,min_v,min_w,gc,vc,oc,ta
 			counter = counter + 1
 		rot_counter = vel_range[1][0]
 		vel_counter = vel_counter + resolution_v
-	ideal_controls = filter_routes(costs,routes,obstacles_list)
+	ideal_controls = filter_routes(costs)
 
 	return ideal_controls[1],ideal_controls[0],routes[int(ideal_controls[2])]
 

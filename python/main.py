@@ -137,21 +137,21 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
     # The main parameters for the simulation
     m              = mujoco.MjModel.from_xml_string(scene.to_xml_string(), assets=all_assets)
     d              = mujoco.MjData(m)
-    max_v          = 2.5                      # Maximum value the velocity control variable can take
+    max_v          = 3.0                      # Maximum value the velocity control variable can take
     max_w          = 12                       # Maximum value the steering control variable can take
     min_v          = 0.2                      # Minimum value the velocity control variable can take
     min_w          = -1*max_w                 # Minimum value the steering control variable can take
     gc             = 1                        # A parameter for calibrating the goal cost, currently ineffectual
     vc             = 1                        # A parameter for calibrating the velocity cost, currently ineffectual
     oc             = 1                        # A parameter for calibrating the obstacle cost, currently ineffectual
-    time_window    = 1.00                     # Time Frame over which the dynamic trajectories are predicted
-    time_step      = time_window/5            # The time step. We sample 10 points per trajectory
+    time_window    = 0.50                     # Time Frame over which the dynamic trajectories are predicted
+    time_step      = time_window/6            # The time step. We sample 10 points per trajectory
     ta             = max_v/(1.2*time_window)  # Translational acceleration involved in calculating the velocity range
-    aa             = max_w/(0.8*time_window)  # Rotational acceleration involved in calculating the steering range
-    rv             = 7                        # Number of velocity samples
-    rw             = 9                        # Number of steering samples per velocity value 
-    look_ahead_in  = 5                        # Setting the goal 3 indices ahead of the closest index
-    vehicle_width  = 0.40                     # Robot's dimensions
+    aa             = max_w/(3*time_window)    # Rotational acceleration involved in calculating the steering range
+    rv             = 5                        # Number of velocity samples
+    rw             = 7                        # Number of steering samples per velocity value 
+    look_ahead_in  = 3                        # Setting the goal 3 indices ahead of the closest index
+    vehicle_width  = 0.35                     # Robot's dimensions
     vehicle_height = 0.45                      
     rx,ry          = AStar(sx,sy,gx,gy,0.29,obstacles[:,0],obstacles[:,1]) #Route created by level_2 controller
     rx.reverse()
@@ -184,6 +184,7 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
         #point          = np.array([d.body("wheel_fl").xpos[:2],d.body("wheel_fr").xpos[:2],d.body("wheel_bl").xpos[:2],d.body("wheel_br").xpos[:2]])
         #point          = np.mean(point, axis=0)
         point          = d.body("buddy").xpos[:2]
+        prev_point     = None
         yaw            = 0
         tile_count     = visualize(r_coordinates,viewer)
         start_count    = tile_count
@@ -239,9 +240,10 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
                     yaw  = syaw %(2*math.pi)
                     syaw = None
                 else:
-                    inrotmat = np.array(d.body("buddy").xmat).reshape(3, 3)
-                    euler = mat2euler(inrotmat)
-                    yaw   = (euler[2] + 2*math.pi)%(2*math.pi)
+                    #inrotmat = np.array(d.body("buddy").xmat).reshape(3, 3)
+                    #euler = mat2euler(inrotmat)
+                    #yaw   = (euler[2] + 2*math.pi)%(2*math.pi)
+                    yaw    = (math.atan2(point[1]-prev_point[1],point[0]-prev_point[0])+2*math.pi)%(2*math.pi)
                 # Select a trajectory
                 s,v,traj    = pick_trajectory(point,goal,complete_obstacles,velocity_val,angular_val,max_v,max_w,min_v,min_w,gc,vc,oc,ta,aa,time_window,time_step,rv,rw,vehicle_width,vehicle_height,yaw)
                 vizualize_route(traj,viewer,start_count)
@@ -283,6 +285,7 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
                     dynamic_coordinates_x  = np.append(dynamic_coordinates_x, x_l)
                     dynamic_coordinates_y  = np.append(dynamic_coordinates_y, y_l)
                 dynamic_coordinates = np.column_stack((dynamic_coordinates_x, dynamic_coordinates_y))
+                prev_point = point.copy()
                 mujoco.mj_step(m, d)
                 
                 # Pick up changes to the physics state, apply perturbations, update options from GUI.
