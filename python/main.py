@@ -150,9 +150,10 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
     aa             = max_w/(3*time_window)    # Rotational acceleration involved in calculating the steering range
     rv             = 5                        # Number of velocity samples
     rw             = 7                        # Number of steering samples per velocity value 
-    look_ahead_in  = 3                        # Setting the goal 3 indices ahead of the closest index
+    look_ahead_in  = 2                        # Setting the goal 3 indices ahead of the closest index
     vehicle_width  = 0.40                     # Robot's dimensions
-    vehicle_height = 0.45                      
+    vehicle_height = 0.45
+    print_stats    = False                    # Decide whether to print instantaneous data or not
     rx,ry          = AStar(sx,sy,gx,gy,0.29,obstacles[:,0],obstacles[:,1]) #Route created by level_2 controller
     rx.reverse()
     ry.reverse()
@@ -245,16 +246,17 @@ def execute_scenario(obstacles,scene, ASSETS=dict()):
                     #yaw   = (euler[2] + 2*math.pi)%(2*math.pi)
                     yaw    = (math.atan2(point[1]-prev_point[1],point[0]-prev_point[0])+2*math.pi)%(2*math.pi)
                 # Select a trajectory
-                s,v,traj    = pick_trajectory(point,goal,complete_obstacles,velocity_val,angular_val,max_v,max_w,min_v,min_w,gc,vc,oc,ta,aa,time_window,time_step,rv,rw,vehicle_width,vehicle_height,yaw)
+                s,v,traj    = pick_trajectory(point,goal,complete_obstacles,velocity_val,angular_val,max_v,max_w,min_v,min_w,gc,vc,oc,ta,aa,time_window,time_step,rv,rw,vehicle_width,vehicle_height,yaw,print_stats)
                 vizualize_route(traj,viewer,start_count)
-                print("Distance to Goal:",euclidean_distance," with index",target_index,"/",(len(r_coordinates)-1))
-                print("Steering:",s)
-                print("Velocity:",v)
-                print("Yaw:",yaw) 
-                #print("Calculated Yaw:",traj[0,2]) 
-                #print("Optimal Yaw:",(math.atan2(goal[1] - point[1],goal[0] - point[0]) + 2*math.pi)%(2*math.pi))
-                print("Coordinates: (",point[0],",",point[1],")")
-                print("***************")
+                if print_stats:
+                    print("Distance to Goal:",euclidean_distance," with index",target_index,"/",(len(r_coordinates)-1))
+                    print("Steering:",s)
+                    print("Velocity:",v)
+                    print("Yaw:",yaw) 
+                    #print("Calculated Yaw:",traj[0,2]) 
+                    #print("Optimal Yaw:",(math.atan2(goal[1] - point[1],goal[0] - point[0]) + 2*math.pi)%(2*math.pi))
+                    print("Coordinates: (",point[0],",",point[1],")")
+                    print("***************")              
                 velocity.ctrl = v # update velocity control value
                 steering.ctrl = s # update steering control value
                 tile_count    = addpoint(point,viewer,tile_count) # Visualize the robot's route

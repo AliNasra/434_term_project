@@ -238,7 +238,7 @@ def AStar(start_x,start_y,goal_x,goal_y,cr,o_x,o_y):
     sy = start_y  # [m]
     gx = goal_x  # [m]
     gy = goal_y  # [m]
-    grid_size = 0.2  # [m]
+    grid_size = 0.30  # [m]
     robot_radius = cr  # [m]
 
     # set obstacle positions
