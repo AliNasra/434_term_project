@@ -22,10 +22,10 @@ The itinerary of the robot, the pre-planned route, and the selected DWA-generate
 
 ## Observations:
 After an intense and protracted period of testing, the following observations were discerned.
-1- The offline path planning is immensely time-consuming. Although I tried the configuration recommended by my colleagues, it didn't improve the performance considerably. Subsequently, I concluded that the device's hardware specifications should be taken into consideration during the implementation.
-2- The vehicle is highly unstable at hard turns. I attempted to solve this issue by limiting the scope of the sampling pool. It helped to a certain degree.
-3- There are situations where all the trajectories are rendered unfeasible. Unfortunately, I couldn't implement a bailout policy for salvaging the robot.
-4- Python is very slow when it comes to intensive computational tasks. Libraries like numpy are indispensable in the implementation.
+1. The offline path planning is immensely time-consuming. Although I tried the configuration recommended by my colleagues, it didn't improve the performance considerably. Subsequently, I concluded that the device's hardware specifications should be taken into consideration during the implementation.
+2. The vehicle is highly unstable at hard turns. I attempted to solve this issue by limiting the scope of the sampling pool. It helped to a certain degree.
+3. There are situations where all the trajectories are rendered unfeasible. Unfortunately, I couldn't implement a bailout policy for salvaging the robot.
+4. Python is very slow when it comes to intensive computational tasks. Libraries like numpy are indispensable in the implementation.
 ## Figures and illustrations:
 ### An example of the route and obstacle layout:
 ![Screenshot from 2024-04-30 14-01-00](https://github.com/AliNasra/434_term_project/assets/52269552/e3f5d3f0-152c-4490-b816-7fc5d99e931d)
